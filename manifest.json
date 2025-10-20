@@ -1,0 +1,21 @@
+{
+  "name": "تطبيقاتي",
+  "short_name": "تطبيقاتي",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#0a0a0a",
+  "theme_color": "#0a0a0a",
+  "description": "معرض تطبيقات سيد سجاد اليعقوبي",
+  "icons": [
+    {
+      "src": "https://raw.githubusercontent.com/iqsd2020-ctrl/All_in_one/main/app-drawer.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://raw.githubusercontent.com/iqsd2020-ctrl/All_in_one/main/app-drawer.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
