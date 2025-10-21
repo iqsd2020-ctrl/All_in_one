@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تطبيقاتي - Apps Gallery</title>
+    
+    <!-- PWA Manifest Link -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0a0a0a">
+    
+    <!-- iOS support -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="تطبيقاتي">
+    <link rel="apple-touch-icon" href="https://raw.githubusercontent.com/iqsd2020-ctrl/All_in_one/main/app-drawer.png">
+
+    <style>
+        :root {
+            --primary-bg: #0a0a0a;
+            --card-bg: #1a1a1a;
+            --accent-color: #00ffff;
+            --accent-glow: 0 0 10px rgba(0, 255, 255, 0.7);
+            --text-color: #e0e0e0;
+            --border-radius: 22px; /* More rounded corners for icons */
+            --transition: all 0.3s ease;
+            /* Gold accent for copyright */
+            --gold-color: #FFD700;
+            --gold-glow: 0 0 15px rgba(255, 215, 0, 0.8), 0 0 25px rgba(255, 215, 0, 0.6);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--primary-bg);
+            color: var(--text-color);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center; /* Center vertically */
+        }
+
+        .container {
+            max-width: 480px; /* Simulate phone screen width */
+            margin: 0 auto; /* Removed specific bottom margin */
+            background: #111;
+            padding: 20px;
+            border-radius: 30px;
+            box-shadow: 0 0 40px rgba(0,0,0,0.5);
+            flex-shrink: 0; /* Prevent container from shrinking */
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 10px;
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, var(--accent-color), #ff00ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: var(--accent-glow);
+        }
+
+        .subtitle {
+            font-size: 1rem;
+            opacity: 0.8;
+        }
+
+        .apps-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 25px 15px; /* row-gap column-gap */
+            justify-items: center;
+        }
+        
+        .app-icon {
+            cursor: pointer;
+            text-align: center;
+            transition: var(--transition);
+            width: 100px; /* Icon width */
+            height: 100px; /* Give a fixed height to align placeholders correctly */
+        }
+        
+        .app-icon:hover {
+            transform: scale(1.1);
+        }
+
+        .app-icon-image-wrapper {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 10px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .app-icon-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .app-icon-title {
+            font-size: 0.85rem;
+            color: var(--text-color);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .add-app .app-icon-image-wrapper {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px dashed rgba(255, 255, 255, 0.2);
+        }
+        
+        .add-app:hover .app-icon-image-wrapper {
+             border-color: var(--accent-color);
+        }
+
+        .add-icon {
+            font-size: 2.5rem;
+            color: var(--accent-color);
+        }
+        
+        .app-placeholder {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px dashed rgba(255, 255, 255, 0.2);
+            border-radius: var(--border-radius);
+            transition: var(--transition);
+            width: 80px;
+            height: 80px;
+            cursor: pointer;
+        }
+
+
+        .app-placeholder:hover {
+            border-color: var(--accent-color);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            max-width: 500px;
+            width: 100%;
+            overflow: hidden;
+            max-height: 90vh;
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.3);
+            animation: modalFadeIn 0.3s ease;
+            border: 1px solid var(--accent-color);
+            display: flex;
+            flex-direction: column;
+        }
+
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 1.6rem;
+            color: var(--accent-color);
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            color: var(--text-color);
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .close-modal:hover {
+            color: var(--accent-color);
+        }
+
+        .modal-body {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            flex-grow: 1;
+        }
+
+        .modal-image {
+            width: 100%;
+            max-height: 220px;
+            object-fit: contain;
+            border-radius: 8px;
+            background-color: #000;
+        }
+
+        .modal-description {
+            font-size: 1.0rem;
+            line-height: 1.6;
+        }
+
+        .modal-footer {
+            padding: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .form-group label {
+            font-weight: bold;
+            opacity: 0.9;
+        }
+
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            background-color: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: var(--text-color);
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        .form-group input:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: var(--accent-glow);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .modal-button {
+            display: inline-block;
+            padding: 12px 30px;
+            background: var(--accent-color);
+            color: var(--primary-bg);
+            border: none;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .modal-button:hover {
+            box-shadow: var(--accent-glow);
+            transform: scale(1.05);
+        }
+
+        .copyright-footer {
+            margin-top: auto; /* Push to the bottom */
+            padding: 20px;
+            text-align: center;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.6);
+            width: 100%; /* Make footer full width */
+        }
+
+        .copyright-footer .gold-frame {
+            display: inline-block;
+            padding: 8px 15px;
+            border: 2px solid var(--gold-color);
+            border-radius: 20px;
+            box-shadow: var(--gold-glow);
+            margin-top: 10px;
+            font-weight: bold;
+            color: var(--gold-color);
+            text-shadow: 0 0 8px rgba(255, 215, 0, 0.7);
+            transition: all 0.3s ease;
+        }
+
+        .copyright-footer .gold-frame:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--gold-glow), 0 0 30px rgba(255, 215, 0, 0.9);
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>تطبيقاتي</h1>
+        </header>
+        
+        <div class="apps-grid" id="appsGrid">
+            <!-- App 1 --><div class="app-icon" data-app-id="1">
+                <div class="app-icon-image-wrapper">
+                    <img src="https://raw.githubusercontent.com/iqsd2020-ctrl/MASTER_KEY_DATA/main/car-key.png" alt="أيقونة بيانات الريموت" class="app-icon-image">
+                </div>
+                <h3 class="app-icon-title">1: بيانات الريموت</h3>
+            </div>
+            
+            <!-- App 2 --><div class="app-icon" data-app-id="2">
+                 <div class="app-icon-image-wrapper">
+                    <img src="https://raw.githubusercontent.com/iqsd2020-ctrl/Sheets/main/csv-file.png" alt="أيقونة محرر الجداول" class="app-icon-image">
+                </div>
+                <h3 class="app-icon-title">2: محرر الجداول</h3>
+            </div>
+            
+            <!-- App 3 --><div class="app-icon" data-app-id="3">
+                <div class="app-icon-image-wrapper">
+                    <img src="https://raw.githubusercontent.com/iqsd2020-ctrl/electricity/main/danger.png" alt="أيقونة حاسبة الكهرباء" class="app-icon-image">
+                </div>
+                <h3 class="app-icon-title">3: حاسبة الكهرباء</h3>
+            </div>
+            
+            <!-- Add new app card --><div class="app-icon add-app" id="addAppCard">
+                <div class="app-icon-image-wrapper">
+                     <div class="add-icon">+</div>
+                </div>
+            </div>
+
+            <!-- Placeholders for future apps --><div class="app-placeholder"></div>
+            <div class="app-placeholder"></div>
+            <div class="app-placeholder"></div>
+            <div class="app-placeholder"></div>
+            <div class="app-placeholder"></div>
+            <div class="app-placeholder"></div>
+            <div class="app-placeholder"></div>
+            <div class="app-placeholder"></div>
+            <div class="app-placeholder"></div>
+            <div class="app-placeholder"></div>
+            <div class="app-placeholder"></div>
+            <div class="app-placeholder"></div>
+            <div class="app-placeholder"></div>
+            <div class="app-placeholder"></div>
+            <div class="app-placeholder"></div>
+            <div class="app-placeholder"></div>
+            <div class="app-placeholder"></div>
+            <div class="app-placeholder"></div>
+            <div class="app-placeholder"></div>
+            <div class="app-placeholder"></div>
+            <div class="app-placeholder"></div>
+            <div class="app-placeholder"></div>
+            <div class="app-placeholder"></div>
+            <div class="app-placeholder"></div>
+            <div class="app-placeholder"></div>
+            <div class="app-placeholder"></div>
+            <div class="app-placeholder"></div>
+            <div class="app-placeholder"></div>
+            <div class="app-placeholder"></div>
+            <div class="app-placeholder"></div>
+            <div class="app-placeholder"></div>
+            <div class="app-placeholder"></div>
+            <div class="app-placeholder"></div>
+            <div class="app-placeholder"></div>
+            <div class="app-placeholder"></div>
+            <div class="app-placeholder"></div>
+            
+        </div>
+    </div>
+    
+    <!-- Details Modal --><div class="modal" id="appModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalAppTitle">اسم التطبيق</h2>
+                <button class="close-modal" data-close-modal="appModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <img src="" alt="صورة التطبيق" class="modal-image" id="modalAppImage">
+                <p class="modal-description" id="modalAppDescription">وصف التطبيق</p>
+            </div>
+            <div class="modal-footer">
+                <a href="#" class="modal-button" id="modalAppLink">زيارة التطبيق</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add New App Modal --><div class="modal" id="addAppModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">إضافة تطبيق جديد</h2>
+                <button class="close-modal" data-close-modal="addAppModal">&times;</button>
+            </div>
+            <form id="addAppForm">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="newAppTitle">عنوان أيقونة التطبيق</label>
+                        <input type="text" id="newAppTitle" required maxlength="15">
+                    </div>
+                    <div class="form-group">
+                        <label for="newAppLongDesc">وصف كامل (للنافذة المنبثقة)</label>
+                        <textarea id="newAppLongDesc" required></textarea>
+                    </div>
+                     <div class="form-group">
+                        <label for="newAppImage">رابط صورة الأيقونة (e.g., 80x80)</label>
+                        <input type="url" id="newAppImage" placeholder="https://placehold.co/80x80/..." required>
+                    </div>
+                    <div class="form-group">
+                        <label for="newAppModalImage">رابط صورة النافذة المنبثقة (e.g., 800x400)</label>
+                        <input type="url" id="newAppModalImage" placeholder="https://placehold.co/800x400/..." required>
+                    </div>
+                    <div class="form-group">
+                        <label for="newAppLink">رابط زيارة التطبيق</label>
+                        <input type="url" id="newAppLink" placeholder="https://example.com" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="modal-button">إضافة التطبيق</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <footer class="copyright-footer">
+        <div class="gold-frame">بواسطة سيد سجاد اليعقوبي</div>
+    </footer>
+
+
+    <script>
+        // App Data Store
+        const appsData = {
+            1: {
+                title: "بيانات الريموت",
+                longDescription: "تطبيق للوصول إلى بيانات الريموت وإدارتها بشكل آمن.",
+                image: "https://raw.githubusercontent.com/iqsd2020-ctrl/MASTER_KEY_DATA/main/car-key.png",
+                modalImage: "https://raw.githubusercontent.com/iqsd2020-ctrl/MASTER_KEY_DATA/main/car-key.png",
+                link: "https://iqsd2020-ctrl.github.io/MASTER_KEY_DATA/"
+            },
+            2: {
+                title: "محرر الجداول",
+                longDescription: "تطبيق لتحرير وإنشاء جداول البيانات بسهولة مباشرة من المتصفح.",
+                image: "https://raw.githubusercontent.com/iqsd2020-ctrl/Sheets/main/csv-file.png",
+                modalImage: "https://raw.githubusercontent.com/iqsd2020-ctrl/Sheets/main/sheets.png",
+                link: "https://iqsd2020-ctrl.github.io/Sheets/"
+            },
+            3: {
+                title: "حاسبة الكهرباء",
+                longDescription: "تطبيق لحساب فاتورة الكهرباء بناءً على الاستهلاك.",
+                image: "https://raw.githubusercontent.com/iqsd2020-ctrl/electricity/main/danger.png",
+                modalImage: "https://raw.githubusercontent.com/iqsd2020-ctrl/electricity/main/calculating-machine.png",
+                link: "https://iqsd2020-ctrl.github.io/electricity/"
+            }
+        };
+
+        // --- DOM Elements ---
+        const appsGrid = document.getElementById('appsGrid');
+        
+        // Details Modal
+        const detailsModal = document.getElementById('appModal');
+        const modalTitle = document.getElementById('modalAppTitle');
+        const modalImage = document.getElementById('modalAppImage');
+        const modalDescription = document.getElementById('modalAppDescription');
+        const modalLink = document.getElementById('modalAppLink');
+        
+        // Add App Modal
+        const addAppCard = document.getElementById('addAppCard');
+        const addAppModal = document.getElementById('addAppModal');
+        const addAppForm = document.getElementById('addAppForm');
+        
+        // --- Functions ---
+        
+        function openDetailsModal(appId) {
+            if (appId && appsData[appId]) {
+                const app = appsData[appId];
+                modalTitle.textContent = app.title;
+                modalImage.src = app.modalImage;
+                modalImage.alt = app.title;
+                modalDescription.textContent = app.longDescription;
+                modalLink.href = app.link;
+                detailsModal.style.display = 'flex';
+            }
+        }
+        
+        function createAppIcon(appId, appData, appNumber) {
+            const icon = document.createElement('div');
+            icon.className = 'app-icon';
+            icon.dataset.appId = appId;
+            
+            icon.innerHTML = `
+                <div class="app-icon-image-wrapper">
+                    <img src="${appData.image}" alt="أيقونة ${appData.title}" class="app-icon-image">
+                </div>
+                <h3 class="app-icon-title">${appNumber}: ${appData.title}</h3>
+            `;
+            
+            icon.addEventListener('click', () => openDetailsModal(appId));
+            return icon;
+        }
+
+        // --- Event Listeners ---
+
+        // Open details modal for existing icons
+        document.querySelectorAll('.app-icon[data-app-id]').forEach(icon => {
+            icon.addEventListener('click', function() {
+                openDetailsModal(this.dataset.appId);
+            });
+        });
+        
+        // Open the "Add App" modal when clicking the dedicated add icon
+        addAppCard.addEventListener('click', () => {
+            addAppModal.style.display = 'flex';
+        });
+
+        // Open the "Add App" modal when clicking any empty placeholder
+        document.querySelectorAll('.app-placeholder').forEach(placeholder => {
+            placeholder.addEventListener('click', () => {
+                addAppModal.style.display = 'flex';
+            });
+        });
+
+        // Handle Add App Form Submission
+        addAppForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+            
+            const newId = 'app-' + Date.now();
+            const nextAppNumber = document.querySelectorAll('.app-icon[data-app-id]').length + 1;
+            
+            const newAppData = {
+                title: document.getElementById('newAppTitle').value,
+                longDescription: document.getElementById('newAppLongDesc').value,
+                image: document.getElementById('newAppImage').value,
+                modalImage: document.getElementById('newAppModalImage').value,
+                link: document.getElementById('newAppLink').value
+            };
+            
+            // Add to data store
+            appsData[newId] = newAppData;
+            
+            // Create and add icon to the DOM
+            const newIcon = createAppIcon(newId, newAppData, nextAppNumber);
+            
+            // Find the first available placeholder and replace it
+            const placeholderToReplace = document.querySelector('.app-placeholder');
+            if (placeholderToReplace) {
+                placeholderToReplace.replaceWith(newIcon);
+            } else {
+                // Fallback in case no placeholders are left
+                appsGrid.insertBefore(newIcon, addAppCard);
+            }
+            
+            // Close modal and reset form
+            addAppModal.style.display = 'none';
+            this.reset();
+        });
+
+        // Close Modals Logic
+        document.querySelectorAll('.close-modal').forEach(button => {
+            button.addEventListener('click', function() {
+                const modalId = this.getAttribute('data-close-modal');
+                document.getElementById(modalId).style.display = 'none';
+            });
+        });
+
+        // Close modal when clicking outside of it
+        window.addEventListener('click', function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
+
+
