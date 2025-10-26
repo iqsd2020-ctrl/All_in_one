@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -5,11 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>تطبيقاتي - Apps Gallery</title>
     
-    <!-- PWA Manifest Link -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0a0a0a">
     
-    <!-- iOS support -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <meta name="apple-mobile-web-app-title" content="تطبيقاتي">
@@ -329,42 +328,47 @@
         </header>
         
         <div class="apps-grid" id="appsGrid">
-            <!-- App 1 --><div class="app-icon" data-app-id="1">
+            <div class="app-icon" data-app-id="1">
                 <div class="app-icon-image-wrapper">
-                    <img src="https://raw.githubusercontent.com/iqsd2020-ctrl/MASTER_KEY_DATA/main/car-key.png" alt="أيقونة بيانات الريموت" class="app-icon-image">
+                    <img src="https://raw.githubusercontent.com/iqsd2020-ctrl/Sjad/main/%D9%A2%D9%A0%D9%A2%D9%A5%D9%A1%D9%A0%D9%A2%D9%A6_%D9%A1%D9%A2%D9%A5%D9%A7%D9%A5%D9%A6.png" alt="أيقونة بيانات الريموت" class="app-icon-image">
                 </div>
                 <h3 class="app-icon-title">1: بيانات الريموت</h3>
             </div>
             
-            <!-- App 2 --><div class="app-icon" data-app-id="2">
+            <div class="app-icon" data-app-id="2">
                  <div class="app-icon-image-wrapper">
                     <img src="https://raw.githubusercontent.com/iqsd2020-ctrl/Sheets/main/csv-file.png" alt="أيقونة محرر الجداول" class="app-icon-image">
                 </div>
                 <h3 class="app-icon-title">2: محرر الجداول</h3>
             </div>
             
-            <!-- App 3 --><div class="app-icon" data-app-id="3">
+            <div class="app-icon" data-app-id="3">
                 <div class="app-icon-image-wrapper">
                     <img src="https://raw.githubusercontent.com/iqsd2020-ctrl/electricity/main/danger.png" alt="أيقونة حاسبة الكهرباء" class="app-icon-image">
                 </div>
                 <h3 class="app-icon-title">3: حاسبة الكهرباء</h3>
             </div>
 
-            <!-- App 4 --><div class="app-icon" data-app-id="4">
+            <div class="app-icon" data-app-id="4">
                 <div class="app-icon-image-wrapper">
                     <img src="https://raw.githubusercontent.com/iqsd2020-ctrl/Web/main/ux.png" alt="أيقونة الموقع" class="app-icon-image">
                 </div>
                 <h3 class="app-icon-title">4: الموقع</h3>
             </div>
             
-            <!-- Add new app card --><div class="app-icon add-app" id="addAppCard">
+            <div class="app-icon" data-app-id="5">
+                 <div class="app-icon-image-wrapper">
+                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQTCfoKX8jiGqix94z8_bjEbiR8BAXKQSo3Ro00x2DC8Q&s=10" alt="أيقونة GitHub" class="app-icon-image">
+                </div>
+                <h3 class="app-icon-title">5: GitHub</h3>
+            </div>
+            
+            <div class="app-icon add-app" id="addAppCard">
                 <div class="app-icon-image-wrapper">
                      <div class="add-icon">+</div>
                 </div>
             </div>
 
-            <!-- Placeholders for future apps --><div class="app-placeholder"></div>
-            <div class="app-placeholder"></div>
             <div class="app-placeholder"></div>
             <div class="app-placeholder"></div>
             <div class="app-placeholder"></div>
@@ -402,7 +406,7 @@
         </div>
     </div>
     
-    <!-- Details Modal --><div class="modal" id="appModal">
+    <div class="modal" id="appModal">
         <div class="modal-content">
             <div class="modal-header">
                 <h2 class="modal-title" id="modalAppTitle">اسم التطبيق</h2>
@@ -418,7 +422,7 @@
         </div>
     </div>
 
-    <!-- Add New App Modal --><div class="modal" id="addAppModal">
+    <div class="modal" id="addAppModal">
         <div class="modal-content">
             <div class="modal-header">
                 <h2 class="modal-title">إضافة تطبيق جديد</h2>
@@ -465,8 +469,8 @@
             1: {
                 title: "بيانات الريموت",
                 longDescription: "تطبيق للوصول إلى بيانات الريموت وإدارتها بشكل آمن.",
-                image: "https://raw.githubusercontent.com/iqsd2020-ctrl/MASTER_KEY_DATA/main/car-key.png",
-                modalImage: "https://raw.githubusercontent.com/iqsd2020-ctrl/MASTER_KEY_DATA/main/car-key.png",
+                image: "https://raw.githubusercontent.com/iqsd2020-ctrl/Sjad/main/%D9%A2%D9%A0%D9%A2%D9%A5%D9%A1%D9%A0%D9%A2%D9%A6_%D9%A1%D9%A2%D9%A5%D9%A7%D9%A5%D9%A6.png",
+                modalImage: "https://raw.githubusercontent.com/iqsd2020-ctrl/Sjad/main/%D9%A2%D9%A0%D9%A2%D9%A5%D9%A1%D9%A0%D9%A2%D9%A6_%D9%A1%D9%A2%D9%A5%D9%A7%D9%A5%D9%A6.png",
                 link: "https://iqsd2020-ctrl.github.io/Sjad/"
             },
             2: {
@@ -488,7 +492,14 @@
                 longDescription: "تطبيق لعرض الموقع الإلكتروني.",
                 image: "https://raw.githubusercontent.com/iqsd2020-ctrl/Web/main/ux.png",
                 modalImage: "https://raw.githubusercontent.com/iqsd2020-ctrl/Web/main/1_20250721_222624_%D9%A0%D9%A0%D9%A0%D9%A0.png",
-                link: "https://iqsd2020-ctrl.github.io/Web/"
+                link: "httpsD://iqsd2020-ctrl.github.io/Web/"
+            },
+            5: {
+                title: "GitHub",
+                longDescription: "منصة لاستضافة وإدارة مشاريع البرمجة.",
+                image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQTCfoKX8jiGqix94z8_bjEbiR8BAXKQSo3Ro00x2DC8Q&s=10",
+                modalImage: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQTCfoKX8jiGqix94z8_bjEbiR8BAXKQSo3Ro00x2DC8Q&s=10",
+                link: "https://github.com/"
             }
         };
 
@@ -610,3 +621,4 @@
     </script>
 </body>
 </html>
+
