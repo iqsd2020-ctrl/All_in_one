@@ -6,7 +6,6 @@
     <title>تطبيقاتي - Apps Gallery</title>
     
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#0a0a0a">
     
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
@@ -15,16 +14,27 @@
 
     <style>
         :root {
-            --primary-bg: #0a0a0a;
-            --card-bg: #1a1a1a;
-            --accent-color: #00ffff;
-            --accent-glow: 0 0 10px rgba(0, 255, 255, 0.7);
-            --text-color: #e0e0e0;
-            --border-radius: 22px; /* More rounded corners for icons */
-            --transition: all 0.3s ease;
-            /* Gold accent for copyright */
-            --gold-color: #FFD700;
-            --gold-glow: 0 0 15px rgba(255, 215, 0, 0.8), 0 0 25px rgba(255, 215, 0, 0.6);
+            /* -- NEUMORPHISM / SOFT UI THEME --
+              تم تغيير المظهر بالكامل إلى تصميم ناعم (Neumorphism)
+            */
+            --primary-bg: #e0e5ec; /* خلفية فاتحة ناعمة */
+            --text-color: #33373d; /* لون نص داكن وهادئ */
+            --accent-color: #0984e3; /* لون تمييز أزرق هادئ */
+            
+            /* ألوان الظلال للتصميم الناعم */
+            --light-shadow: #ffffff;
+            --dark-shadow: #a3b1c6;
+            
+            /* أنماط الظلال الرئيسية */
+            --inset-shadow: inset 6px 6px 12px var(--dark-shadow), inset -6px -6px 12px var(--light-shadow);
+            --outset-shadow: 6px 6px 12px var(--dark-shadow), -6px -6px 12px var(--light-shadow);
+            --outset-shadow-large: 12px 12px 24px var(--dark-shadow), -12px -12px 24px var(--light-shadow);
+
+            --border-radius: 22px; /* زوايا دائرية جداً */
+            --transition: all 0.2s ease-in-out;
+            
+            /* تعديل اللون الذهبي ليتناسب مع التصميم */
+            --gold-color: #b8930c;
         }
 
         * {
@@ -43,17 +53,19 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center; /* Center vertically */
+            justify-content: center; /* توسيط عمودي */
         }
 
         .container {
-            max-width: 480px; /* Simulate phone screen width */
-            margin: 0 auto; /* Removed specific bottom margin */
-            background: #111;
-            padding: 20px;
+            max-width: 480px; /* محاكاة عرض شاشة الهاتف */
+            margin: 0 auto;
+            /* تصميم ناعم للحاوية (بارز) */
+            background: var(--primary-bg);
             border-radius: 30px;
-            box-shadow: 0 0 40px rgba(0,0,0,0.5);
-            flex-shrink: 0; /* Prevent container from shrinking */
+            box-shadow: var(--outset-shadow-large);
+            border: none;
+            padding: 20px;
+            flex-shrink: 0;
         }
 
         header {
@@ -65,11 +77,12 @@
         h1 {
             font-size: 2rem;
             margin-bottom: 10px;
-            background: linear-gradient(90deg, var(--accent-color), #ff00ff);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            text-shadow: var(--accent-glow);
+            /* تم تغيير العنوان ليتناسب مع التصميم الجديد */
+            color: var(--accent-color);
+            text-shadow: 1px 1px 2px var(--light-shadow);
+            background: none;
+            -webkit-background-clip: unset;
+            background-clip: unset;
         }
 
         .subtitle {
@@ -88,28 +101,36 @@
             cursor: pointer;
             text-align: center;
             transition: var(--transition);
-            width: 100px; /* Icon width */
-            height: 100px; /* Give a fixed height to align placeholders correctly */
+            width: 100px; /* عرض الأيقونة */
+            height: 100px; /* ارتفاع ثابت */
         }
         
+        /* إزالة تأثير التكبير، استبداله بتأثير الضغط */
         .app-icon:hover {
-            transform: scale(1.1);
+            transform: scale(1.02); /* تأثير بسيط جداً */
         }
 
         .app-icon-image-wrapper {
-            background: var(--card-bg);
+            /* تصميم ناعم "بارز" لأيقونات التطبيق */
+            background: var(--primary-bg);
+            box-shadow: var(--outset-shadow);
+            border: none;
             border-radius: var(--border-radius);
             overflow: hidden;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
-            border: 1px solid rgba(255, 255, 255, 0.1);
             width: 80px;
             height: 80px;
             margin: 0 auto 10px auto;
             display: flex;
             align-items: center;
             justify-content: center;
+            transition: var(--transition);
         }
         
+        /* تأثير "الضغط" عند التمرير */
+        .app-icon:hover .app-icon-image-wrapper {
+            box-shadow: var(--inset-shadow);
+        }
+
         .app-icon-image {
             width: 100%;
             height: 100%;
@@ -122,25 +143,36 @@
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            text-shadow: none; /* إزالة الظل السابق */
         }
 
         .add-app .app-icon-image-wrapper {
-            background: rgba(255, 255, 255, 0.05);
-            border: 2px dashed rgba(255, 255, 255, 0.2);
+             /* تصميم "غائر" لزر الإضافة */
+            background: var(--primary-bg);
+            box-shadow: var(--inset-shadow);
+            border: none;
         }
         
         .add-app:hover .app-icon-image-wrapper {
-             border-color: var(--accent-color);
+             /* تأثير ضغط أعمق */
+             box-shadow: inset 8px 8px 15px var(--dark-shadow), inset -8px -8px 15px var(--light-shadow);
         }
 
         .add-icon {
             font-size: 2.5rem;
             color: var(--accent-color);
+            transition: var(--transition);
+        }
+        
+        .add-app:hover .add-icon {
+            transform: scale(1.1);
         }
         
         .app-placeholder {
-            background: rgba(255, 255, 255, 0.05);
-            border: 2px dashed rgba(255, 255, 255, 0.2);
+            /* تصميم "غائر" للعنصر النائب */
+            background: var(--primary-bg);
+            border: none;
+            box-shadow: var(--inset-shadow);
             border-radius: var(--border-radius);
             transition: var(--transition);
             width: 80px;
@@ -148,9 +180,9 @@
             cursor: pointer;
         }
 
-
         .app-placeholder:hover {
-            border-color: var(--accent-color);
+            /* تأثير ضغط أعمق */
+            box-shadow: inset 8px 8px 15px var(--dark-shadow), inset -8px -8px 15px var(--light-shadow);
         }
 
         .modal {
@@ -160,24 +192,27 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.8);
+            /* خلفية شبه شفافة بدون ضبابية */
+            background: rgba(0, 0, 0, 0.4);
             z-index: 1000;
             align-items: center;
             justify-content: center;
             padding: 20px;
-            backdrop-filter: blur(5px);
+            backdrop-filter: none; /* إزالة الفلتر الزجاجي */
         }
 
         .modal-content {
-            background: var(--card-bg);
+            /* تصميم ناعم "بارز" للنافذة المنبثقة */
+            background: var(--primary-bg);
+            box-shadow: var(--outset-shadow-large);
+            border: none;
+            
             border-radius: var(--border-radius);
             max-width: 500px;
             width: 100%;
             overflow: hidden;
             max-height: 90vh;
-            box-shadow: 0 0 30px rgba(0, 255, 255, 0.3);
             animation: modalFadeIn 0.3s ease;
-            border: 1px solid var(--accent-color);
             display: flex;
             flex-direction: column;
         }
@@ -189,7 +224,8 @@
 
         .modal-header {
             padding: 20px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            /* خط فاصل ناعم جداً */
+            border-bottom: 1px solid var(--dark-shadow);
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -219,6 +255,7 @@
             flex-direction: column;
             gap: 15px;
             flex-grow: 1;
+            overflow-y: auto;
         }
 
         .modal-image {
@@ -226,7 +263,8 @@
             max-height: 220px;
             object-fit: contain;
             border-radius: 8px;
-            background-color: #000;
+            /* ظل غائر للصورة */
+            box-shadow: var(--inset-shadow);
         }
 
         .modal-description {
@@ -236,8 +274,9 @@
 
         .modal-footer {
             padding: 20px;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            border-top: 1px solid var(--dark-shadow);
             text-align: center;
+            margin-top: auto;
         }
         
         .form-group {
@@ -249,13 +288,16 @@
         .form-group label {
             font-weight: bold;
             opacity: 0.9;
+            padding-right: 5px;
         }
 
         .form-group input, .form-group textarea {
             width: 100%;
             padding: 12px;
-            background-color: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            /* تصميم "غائر" لحقول الإدخال */
+            background-color: var(--primary-bg);
+            box-shadow: var(--inset-shadow);
+            border: none; /* إزالة الحدود */
             border-radius: 8px;
             color: var(--text-color);
             font-size: 1rem;
@@ -264,8 +306,8 @@
 
         .form-group input:focus, .form-group textarea:focus {
             outline: none;
-            border-color: var(--accent-color);
-            box-shadow: var(--accent-glow);
+            /* عند التركيز، إظهار إطار بلون التمييز لتحسين إمكانية الوصول */
+            box-shadow: 0 0 0 2px var(--accent-color), var(--inset-shadow);
         }
 
         .form-group textarea {
@@ -276,8 +318,11 @@
         .modal-button {
             display: inline-block;
             padding: 12px 30px;
-            background: var(--accent-color);
-            color: var(--primary-bg);
+            /* تصميم "بارز" للزر */
+            background: var(--primary-bg);
+            color: var(--text-color);
+            box-shadow: var(--outset-shadow);
+            
             border: none;
             border-radius: 30px;
             text-decoration: none;
@@ -286,36 +331,42 @@
             cursor: pointer;
         }
 
-        .modal-button:hover {
-            box-shadow: var(--accent-glow);
-            transform: scale(1.05);
+        .modal-button:hover, .modal-button:active {
+            /* تأثير "الضغط" للزر */
+            box-shadow: var(--inset-shadow);
+            color: var(--accent-color);
+            transform: scale(0.98);
         }
 
         .copyright-footer {
-            margin-top: auto; /* Push to the bottom */
+            margin-top: auto; /* دفع لأسفل */
             padding: 20px;
             text-align: center;
             font-size: 0.9rem;
-            color: rgba(255, 255, 255, 0.6);
-            width: 100%; /* Make footer full width */
+            color: rgba(0, 0, 0, 0.6);
+            width: 100%; /* جعل التذييل بعرض كامل */
         }
 
         .copyright-footer .gold-frame {
             display: inline-block;
             padding: 8px 15px;
-            border: 2px solid var(--gold-color);
+            /* تصميم "بارز" للإطار الذهبي */
+            background: var(--primary-bg);
+            color: var(--gold-color);
+            box-shadow: var(--outset-shadow);
+            border: none; /* إزالة الحدود */
+            
             border-radius: 20px;
-            box-shadow: var(--gold-glow);
             margin-top: 10px;
             font-weight: bold;
-            color: var(--gold-color);
-            text-shadow: 0 0 8px rgba(255, 215, 0, 0.7);
+            text-shadow: none; /* إزالة التوهج */
             transition: all 0.3s ease;
         }
 
         .copyright-footer .gold-frame:hover {
-            transform: translateY(-3px);
-            box-shadow: var(--gold-glow), 0 0 30px rgba(255, 215, 0, 0.9);
+            /* تأثير "الضغط" */
+            box-shadow: var(--inset-shadow);
+            transform: none; /* إزالة الحركة العمودية */
         }
 
     </style>
@@ -370,6 +421,16 @@
                 <h3 class="app-icon-title">6: كوديا</h3>
             </div>
             <!-- END NEW APP -->
+            
+            <!-- START: تعديل تطبيق 7 -->
+            <div class="app-icon" data-app-id="7">
+                <div class="app-icon-image-wrapper">
+                    <!-- ايقونة جديدة (محرر القوائم) -->
+                    <img src="https://cdn-icons-png.flaticon.com/512/1159/1159633.png" alt="أيقونة محرر القوائم" class="app-icon-image">
+                </div>
+                <h3 class="app-icon-title">7: محرر القوائم</h3>
+            </div>
+            <!-- END: تعديل تطبيق 7 -->
             
             <div class="app-icon add-app" id="addAppCard">
                 <div class="app-icon-image-wrapper">
@@ -515,7 +576,16 @@
                 image: "https://cdn-icons-png.flaticon.com/512/2920/2920244.png",
                 modalImage: "https://cdn-icons-png.flaticon.com/512/2920/2920244.png",
                 link: "https://iqsd2020-ctrl.github.io/-/"
+            },
+            // START: تعديل تطبيق 7
+            7: {
+                title: "محرر القوائم",
+                longDescription: "تطبيق لتحرير وإنشاء القوائم.",
+                image: "https://cdn-icons-png.flaticon.com/512/1159/1159633.png", // ايقونة محرر القوائم
+                modalImage: "https://placehold.co/800x400/0984e3/e0e5ec?text=Menu+Editor", // صورة احتياطية محدثة
+                link: "https://iqsd2020-ctrl.github.io/Menu/"
             }
+            // END: تعديل تطبيق 7
         };
 
         // --- DOM Elements ---
@@ -636,3 +706,7 @@
     </script>
 </body>
 </html>
+
+
+
+
