@@ -310,6 +310,47 @@
             box-shadow: 0 0 0 2px var(--accent-color), var(--inset-shadow);
         }
 
+        /* [جديد] تنسيقات خاصة بمربعات إدخال الـ PIN */
+        .pin-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            direction: ltr; /* مهم لترتيب الإدخال من اليسار لليمين */
+            margin-top: 10px;
+        }
+
+        .pin-input {
+            width: 50px;
+            height: 50px;
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            
+            /* تطبيق تصميم Neumorphism */
+            background-color: var(--primary-bg);
+            box-shadow: var(--inset-shadow);
+            border: none;
+            border-radius: 12px;
+            color: var(--text-color);
+            transition: var(--transition);
+            
+            /* إخفاء الأسهم في حقول الأرقام */
+            -moz-appearance: textfield;
+        }
+        
+        .pin-input::-webkit-inner-spin-button,
+        .pin-input::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        .pin-input:focus {
+            outline: none;
+            /* تأثير التركيز المميز */
+            box-shadow: 0 0 0 2px var(--accent-color), var(--inset-shadow);
+        }
+
+
         .form-group textarea {
             resize: vertical;
             min-height: 100px;
@@ -474,6 +515,35 @@
         </div>
     </div>
 
+    <!-- [معدل] نافذة طلب الرقم السري (PIN) -->
+    <div class="modal" id="passwordModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">الرقم السري (Master Key)</h2>
+                <button class="close-modal" data-close-modal="passwordModal">&times;</button>
+            </div>
+            <form id="passwordForm">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="pin1">الرجاء إدخال الرمز للمتابعة:</label>
+                        <!-- [جديد] حاوية مربعات الـ PIN -->
+                        <div class="pin-container">
+                            <input type="tel" class="pin-input" id="pin1" maxlength="1" required>
+                            <input type="tel" class="pin-input" id="pin2" maxlength="1" required>
+                            <input type="tel" class="pin-input" id="pin3" maxlength="1" required>
+                            <input type="tel" class="pin-input" id="pin4" maxlength="1" required>
+                        </div>
+                        <!-- رسالة الخطأ، مخفية افتراضياً -->
+                        <p id="passwordError" style="color: red; display: none; margin-top: 10px;">الرمز غير صحيح.</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="modal-button">دخول</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <footer class="copyright-footer">
         <div class="gold-frame">  MASTER KEY </div>
     </footer>
@@ -533,6 +603,12 @@
         const addAppCard = document.getElementById('addAppCard');
         const addAppModal = document.getElementById('addAppModal');
         const addAppForm = document.getElementById('addAppForm');
+
+        // [معدل] عناصر نافذة الرقم السري (PIN)
+        const passwordModal = document.getElementById('passwordModal');
+        const passwordForm = document.getElementById('passwordForm');
+        const pinInputs = document.querySelectorAll('.pin-input'); // جلب جميع المربعات
+        const passwordError = document.getElementById('passwordError');
         
         // --- Functions ---
         
@@ -614,17 +690,68 @@
 
         // --- Event Listeners ---
 
-        // Open the "Add App" modal when clicking the dedicated add icon
-        addAppCard.addEventListener('click', () => {
-            addAppModal.style.display = 'flex';
+        // [معدل] دالة لإظهار نافذة الرقم السري
+        function showPasswordPrompt() {
+            pinInputs.forEach(input => input.value = ''); // مسح أي محاولات سابقة
+            passwordError.style.display = 'none'; // إخفاء رسالة الخطأ
+            passwordModal.style.display = 'flex'; // إظهار النافذة
+            pinInputs[0].focus(); // التركيز على المربع الأول
+        }
+
+        // [معدل] فتح نافذة "الرقم السري" بدلاً من نافذة الإضافة
+        addAppCard.addEventListener('click', showPasswordPrompt);
+
+        // [معدل] فتح نافذة "الرقم السري" عند الضغط على أي عنصر نائب
+        document.querySelectorAll('.app-placeholder').forEach(placeholder => {
+            placeholder.addEventListener('click', showPasswordPrompt);
         });
 
-        // Open the "Add App" modal when clicking any empty placeholder
-        document.querySelectorAll('.app-placeholder').forEach(placeholder => {
-            placeholder.addEventListener('click', () => {
-                addAppModal.style.display = 'flex';
+        // [جديد] منطق التنقل بين مربعات الـ PIN
+        pinInputs.forEach((input, index) => {
+            input.addEventListener('input', (e) => {
+                // فلترة الإدخال ليقبل الأرقام فقط
+                input.value = input.value.replace(/[^0-9]/g, '');
+                
+                // إذا تم إدخال رقم، انتقل للمربع التالي
+                if (input.value.length === 1 && index < pinInputs.length - 1) {
+                    pinInputs[index + 1].focus();
+                }
+            });
+
+            input.addEventListener('keydown', (e) => {
+                // إذا ضغط Backspace وكان المربع فارغاً، ارجع للمربع السابق
+                if (e.key === 'Backspace' && input.value.length === 0 && index > 0) {
+                    pinInputs[index - 1].focus();
+                }
             });
         });
+
+
+        // [معدل] التعامل مع إرسال فورم الرقم السري
+        passwordForm.addEventListener('submit', function(event) {
+            event.preventDefault(); // منع الإرسال التقليدي
+            
+            // [جديد] تجميع الرمز من المربعات
+            let enteredKey = "";
+            pinInputs.forEach(input => {
+                enteredKey += input.value;
+            });
+
+            const correctKey = "1420"; // الرقم السري المطلوب
+
+            if (enteredKey === correctKey) {
+                // صحيح!
+                passwordModal.style.display = 'none'; // إخفاء نافذة الرقم السري
+                addAppModal.style.display = 'flex'; // إظهار نافذة إضافة التطبيق
+            } else {
+                // خطأ!
+                passwordError.style.display = 'block'; // إظهار رسالة الخطأ
+                // [جديد] مسح المربعات والتركيز على الأول
+                pinInputs.forEach(input => input.value = '');
+                pinInputs[0].focus();
+            }
+        });
+
 
         // [معدل] Handle Add App Form Submission
         addAppForm.addEventListener('submit', async function(event) {
@@ -706,3 +833,5 @@
     </script>
 </body>
 </html>
+
+
