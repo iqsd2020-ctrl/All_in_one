@@ -378,68 +378,6 @@
         </header>
         
         <div class="apps-grid" id="appsGrid">
-            <div class="app-icon" data-app-id="1">
-                <div class="app-icon-image-wrapper">
-                    <img src="https://raw.githubusercontent.com/iqsd2020-ctrl/MK/refs/heads/main/png/Icon.png" alt="أيقونة بيانات الريموت" class="app-icon-image">
-                </div>
-                <h3 class="app-icon-title">1: بيانات الريموت</h3>
-            </div>
-            
-            <div class="app-icon" data-app-id="2">
-                 <div class="app-icon-image-wrapper">
-                    <img src="https://raw.githubusercontent.com/iqsd2020-ctrl/Sheets/main/csv-file.png" alt="أيقونة محرر الجداول" class="app-icon-image">
-                </div>
-                <h3 class="app-icon-title">2: محرر الجداول</h3>
-            </div>
-            
-            <div class="app-icon" data-app-id="3">
-                <div class="app-icon-image-wrapper">
-                    <img src="https://raw.githubusercontent.com/iqsd2020-ctrl/electricity/main/danger.png" alt="أيقونة حاسبة الكهرباء" class="app-icon-image">
-                </div>
-                <h3 class="app-icon-title">3: حاسبة الكهرباء</h3>
-            </div>
-
-            <div class="app-icon" data-app-id="4">
-                <div class="app-icon-image-wrapper">
-                    <img src="https://raw.githubusercontent.com/iqsd2020-ctrl/Web/main/ux.png" alt="أيقونة الموقع" class="app-icon-image">
-                </div>
-                <h3 class="app-icon-title">4: الموقع</h3>
-            </div>
-            
-            <div class="app-icon" data-app-id="5">
-                 <div class="app-icon-image-wrapper">
-                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQTCfoKX8jiGqix94z8_bjEbiR8BAXKQSo3Ro00x2DC8Q&s=10" alt="أيقونة GitHub" class="app-icon-image">
-                </div>
-                <h3 class="app-icon-title">5: GitHub</h3>
-            </div>
-
-            <!-- NEW APP: كوديا (App 6) -->
-            <div class="app-icon" data-app-id="6">
-                 <div class="app-icon-image-wrapper">
-                    <img src="https://cdn-icons-png.flaticon.com/512/2920/2920244.png" alt="أيقونة كوديا" class="app-icon-image">
-                </div>
-                <h3 class="app-icon-title">6: كوديا</h3>
-            </div>
-            <!-- END NEW APP -->
-            
-            <!-- START: تعديل تطبيق 7 -->
-            <div class="app-icon" data-app-id="7">
-                <div class="app-icon-image-wrapper">
-                    <!-- ايقونة جديدة (محرر القوائم) -->
-                    <img src="https://cdn-icons-png.flaticon.com/512/1159/1159633.png" alt="أيقونة محرر القوائم" class="app-icon-image">
-                </div>
-                <h3 class="app-icon-title">7: محرر القوائم</h3>
-            </div>
-            <!-- END: تعديل تطبيق 7 -->
-            
-            <!-- START: تعديل تطبيق 8 -->
-            <div class="app-icon" data-app-id="8">
-                <div class="app-icon-image-wrapper">
-                    <img src="https://i.imgur.com/Ra9c5H4.png" alt="أيقونة اعمال الايام" class="app-icon-image">
-                </div>
-                <h3 class="app-icon-title">8: اعمال الايام</h3>
-            </div>
-            <!-- END: تعديل تطبيق 8 -->
             
             <div class="app-icon add-app" id="addAppCard">
                 <div class="app-icon-image-wrapper">
@@ -540,72 +478,46 @@
         <div class="gold-frame">  MASTER KEY </div>
     </footer>
 
+    <script type="module">
+        // استيراد الدوال التي نحتاجها
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+        import { getFirestore, collection, getDocs, addDoc, orderBy, query } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
 
+        // --- 1. إعدادات Firebase ---
+        // هذا هو الكائن الخاص بك من مشروع "all-in-one-1c64f"
+        const firebaseConfig = {
+          apiKey: "AIzaSyDSVqs_a4hCv9-JPL_Jos5r2lvVpPgRbHw",
+          authDomain: "all-in-one-1c64f.firebaseapp.com",
+          projectId: "all-in-one-1c64f",
+          storageBucket: "all-in-one-1c64f.firebasestorage.app",
+          messagingSenderId: "794539548289",
+          appId: "1:794539548289:web:4df3f0174bfa062e547780",
+          measurementId: "G-KRG3X02THS"
+        };
+
+        // --- 2. تهيئة Firebase ---
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        console.log("Firebase Connected!");
+
+        // --- 3. جعل الدوال متاحة للكود القديم ---
+        // (حتى يتمكن السكربت التالي من استخدامها)
+        window.db = db;
+        window.fb = {
+            collection,
+            getDocs,
+            addDoc,
+            orderBy,
+            query
+        };
+
+    </script>
+    
     <script>
         // App Data Store
-        const appsData = {
-            1: {
-                title: "بيانات الريموت",
-                longDescription: "تطبيق للوصول إلى بيانات الريموت وإدارتها بشكل آمن.",
-                image: "https://raw.githubusercontent.com/iqsd2020-ctrl/MK/refs/heads/main/png/Icon.png",
-                modalImage: "https://raw.githubusercontent.com/iqsd2020-ctrl/Sjad/main/%D9%A2%D9%A0%D9%A2%D9%A5%D9%A1%D9%A0%D9%A2%D9%A6_%D9%A1%D9%A2%D9%A5%D9%A7%D9%A5%D9%A6.png",
-                link: "https://iqsd2020-ctrl.github.io/MK/"
-            },
-            2: {
-                title: "محرر الجداول",
-                longDescription: "تطبيق لتحرير وإنشاء جداول البيانات بسهولة مباشرة من المتصفح.",
-                image: "https://raw.githubusercontent.com/iqsd2020-ctrl/Sheets/main/csv-file.png",
-                modalImage: "https://raw.githubusercontent.com/iqsd2020-ctrl/Sheets/main/sheets.png",
-                link: "https://iqsd2020-ctrl.github.io/Sheets/"
-            },
-            3: {
-                title: "حاسبة الكهرباء",
-                longDescription: "تطبيق لحساب فاتورة الكهرباء بناءً على الاستهلاك.",
-                image: "https://raw.githubusercontent.com/iqsd2020-ctrl/electricity/main/danger.png",
-                modalImage: "https://raw.githubusercontent.com/iqsd2020-ctrl/electricity/main/calculating-machine.png",
-                link: "https://iqsd2020-ctrl.github.io/electricity/"
-            },
-            4: {
-                title: "الموقع",
-                longDescription: "تطبيق لعرض الموقع الإلكتروني.",
-                image: "https://raw.githubusercontent.com/iqsd2020-ctrl/Web/main/ux.png",
-                modalImage: "https://raw.githubusercontent.com/iqsd2020-ctrl/Web/main/1_20250721_222624_%D9%A0%D9%A0%D9%A0%D9%A0.png",
-                link: "httpsD://iqsd2020-ctrl.github.io/Web/"
-            },
-            5: {
-                title: "GitHub",
-                longDescription: "منصة لاستضافة وإدارة مشاريع البرمجة.",
-                image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQTCfoKX8jiGqix94z8_bjEbiR8BAXKQSo3Ro00x2DC8Q&s=10",
-                modalImage: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQTCfoKX8jiGqix94z8_bjEbiR8BAXKQSo3Ro00x2DC8Q&s=10",
-                link: "https://github.com/"
-            },
-            6: {
-                title: "كوديا",
-                longDescription: "تطبيق تعليمي متخصص في البرمجة وتطوير الويب.",
-                image: "https://cdn-icons-png.flaticon.com/512/2920/2920244.png",
-                modalImage: "https://cdn-icons-png.flaticon.com/512/2920/2920244.png",
-                link: "https://iqsd2020-ctrl.github.io/-/"
-            },
-            // START: تعديل تطبيق 7
-            7: {
-                title: "محرر القوائم",
-                longDescription: "تطبيق لتحرير وإنشاء القوائم.",
-                image: "https://cdn-icons-png.flaticon.com/512/1159/1159633.png", // ايقونة محرر القوائم
-                modalImage: "https://placehold.co/800x400/0984e3/e0e5ec?text=Menu+Editor", // صورة احتياطية محدثة
-                link: "https://iqsd2020-ctrl.github.io/Menu/"
-            },
-            // END: تعديل تطبيق 7
-            
-            // START: تعديل تطبيق 8
-            8: {
-                title: "اعمال الايام",
-                longDescription: "تطبيق لتتبع أعمال ومهام الأيام.",
-                image: "https://i.imgur.com/Ra9c5H4.png", // ايقونة جديدة
-                modalImage: "https://i.imgur.com/Ra9c5H4.png", // استعمال نفس الايقونة كصورة نافذة
-                link: "https://iqsd2020-ctrl.github.io/days_job/"
-            }
-            // END: تعديل تطبيق 8
-        };
+        // هذا الكائن سيتم ملؤه الآن من قاعدة بيانات Firebase
+        let appsData = {};
+        let nextAppNumber = 1; // متغير لتتبع ترقيم التطبيقات
 
         // --- DOM Elements ---
         const appsGrid = document.getElementById('appsGrid');
@@ -641,26 +553,67 @@
             icon.className = 'app-icon';
             icon.dataset.appId = appId;
             
+            const displayTitle = `${appNumber}: ${appData.title}`;
+            
             icon.innerHTML = `
                 <div class="app-icon-image-wrapper">
                     <img src="${appData.image}" alt="أيقونة ${appData.title}" class="app-icon-image">
                 </div>
-                <h3 class="app-icon-title">${appNumber}: ${appData.title}</h3>
+                <h3 class="app-icon-title">${displayTitle}</h3>
             `;
             
             icon.addEventListener('click', () => openDetailsModal(appId));
             return icon;
         }
 
+        /**
+         * [الجديد] دالة لتحميل وعرض التطبيقات من Firebase
+         */
+        async function loadAndRenderApps() {
+            // 1. استرجاع الدوال من "window" (التي عرفناها في السكربت السابق)
+            const { collection, query, orderBy, getDocs } = window.fb;
+            const db = window.db;
+
+            // 2. إنشاء "استعلام" لجلب التطبيقات، مرتبة حسب الحقل "order"
+            const appsCollectionRef = collection(db, "apps"); // "apps" هو اسم مجموعتنا في Firestore
+            const q = query(appsCollectionRef, orderBy("order")); // نرتبهم حسب الحقل "order"
+
+            // 3. تنفيذ الاستعلام
+            const querySnapshot = await getDocs(q);
+            
+            let currentAppNumber = 1;
+
+            // 4. المرور على النتائج وعرضها
+            querySnapshot.forEach((doc) => {
+                const appId = doc.id;
+                const appData = doc.data();
+                
+                // 5. إضافة البيانات للكائن المحلي (لنستخدمه في النافذة المنبثقة)
+                appsData[appId] = appData;
+
+                // 6. إنشاء وعرض الأيقونة
+                const iconElement = createAppIcon(appId, appData, currentAppNumber);
+                
+                // إيجاد أول عنصر نائب (placeholder) واستبداله بالأيقونة
+                const placeholderToReplace = document.querySelector('.app-placeholder');
+                if (placeholderToReplace) {
+                    placeholderToReplace.replaceWith(iconElement);
+                } else {
+                    // كحل احتياطي إذا امتلأت العناصر النائبة
+                    appsGrid.insertBefore(iconElement, addAppCard);
+                }
+                
+                currentAppNumber++;
+            });
+            
+            // 7. تحديث رقم التطبيق التالي
+            nextAppNumber = currentAppNumber;
+            console.log(`تم تحميل ${nextAppNumber - 1} تطبيق من Firebase.`);
+        }
+
+
         // --- Event Listeners ---
 
-        // Open details modal for existing icons
-        document.querySelectorAll('.app-icon[data-app-id]').forEach(icon => {
-            icon.addEventListener('click', function() {
-                openDetailsModal(this.dataset.appId);
-            });
-        });
-        
         // Open the "Add App" modal when clicking the dedicated add icon
         addAppCard.addEventListener('click', () => {
             addAppModal.style.display = 'flex';
@@ -673,39 +626,54 @@
             });
         });
 
-        // Handle Add App Form Submission
-        addAppForm.addEventListener('submit', function(event) {
+        // [معدل] Handle Add App Form Submission
+        addAppForm.addEventListener('submit', async function(event) {
             event.preventDefault();
             
-            const newId = 'app-' + Date.now();
-            const nextAppNumber = document.querySelectorAll('.app-icon[data-app-id]').length + 1;
-            
+            // 1. استرجاع دوال Firebase
+            const { collection, addDoc } = window.fb;
+            const db = window.db;
+
+            // 2. تجميع بيانات الفورم
             const newAppData = {
                 title: document.getElementById('newAppTitle').value,
                 longDescription: document.getElementById('newAppLongDesc').value,
                 image: document.getElementById('newAppImage').value,
                 modalImage: document.getElementById('newAppModalImage').value,
-                link: document.getElementById('newAppLink').value
+                link: document.getElementById('newAppLink').value,
+                order: nextAppNumber // [مهم] إضافة حقل الترتيب
             };
             
-            // Add to data store
-            appsData[newId] = newAppData;
-            
-            // Create and add icon to the DOM
-            const newIcon = createAppIcon(newId, newAppData, nextAppNumber);
-            
-            // Find the first available placeholder and replace it
-            const placeholderToReplace = document.querySelector('.app-placeholder');
-            if (placeholderToReplace) {
-                placeholderToReplace.replaceWith(newIcon);
-            } else {
-                // Fallback in case no placeholders are left
-                appsGrid.insertBefore(newIcon, addAppCard);
+            try {
+                // 3. [الخطوة الأهم] حفظ البيانات في Firebase
+                const docRef = await addDoc(collection(db, "apps"), newAppData);
+                
+                console.log("Document written with ID: ", docRef.id);
+                const newId = docRef.id;
+
+                // 4. إضافة التطبيق الجديد محلياً وواجهة المستخدم
+                appsData[newId] = newAppData;
+                
+                const newIcon = createAppIcon(newId, newAppData, nextAppNumber);
+                
+                const placeholderToReplace = document.querySelector('.app-placeholder');
+                if (placeholderToReplace) {
+                    placeholderToReplace.replaceWith(newIcon);
+                } else {
+                    appsGrid.insertBefore(newIcon, addAppCard);
+                }
+                
+                // 5. زيادة العداد
+                nextAppNumber++;
+
+                // 6. إغلاق النافذة وإعادة تعيين الفورم
+                addAppModal.style.display = 'none';
+                this.reset();
+
+            } catch (e) {
+                console.error("Error adding document: ", e);
+                alert("حدث خطأ أثناء حفظ التطبيق. يرجى المحاولة مرة أخرى.");
             }
-            
-            // Close modal and reset form
-            addAppModal.style.display = 'none';
-            this.reset();
         });
 
         // Close Modals Logic
@@ -722,13 +690,19 @@
                 event.target.style.display = 'none';
             }
         });
+
+        // --- [جديد] تشغيل كل شيء ---
+        // عند تحميل الصفحة، انتظر حتى يتم تحميل كل شيء ثم ابدأ بتحميل التطبيقات
+        window.addEventListener('DOMContentLoaded', () => {
+            // نحتاج للانتظار قليلاً للتأكد من أن سكربت Firebase قد تم تحميله
+            setTimeout(() => {
+                if (window.db && window.fb) {
+                    loadAndRenderApps();
+                } else {
+                    console.error("Firebase is not initialized yet!");
+                }
+            }, 500); // 0.5 ثانية انتظار
+        });
     </script>
 </body>
 </html>
-
-
-
-
-
-
-
