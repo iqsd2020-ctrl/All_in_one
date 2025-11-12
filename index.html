@@ -2,27 +2,39 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>تطبيقاتي</title>
-    <!-- PWA Manifest -->
     <link rel="manifest" href="manifest.json">
-    <!-- Favicon -->
     <link rel="icon" href="https://raw.githubusercontent.com/iqsd2020-ctrl/All_in_one/refs/heads/main/app-drawer.png">
     
-    <!-- Libraries -->
+    <!-- مكاتب التصميم -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <!-- Firebase Config & Init (Module) -->
-    <script type="module">
-        // استيراد مكتبات فايربيس عبر روابط الويب المباشرة
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc, addDoc, deleteDoc, updateDoc, onSnapshot, collection, query, orderBy, increment, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    <style>
+        body { font-family: 'Tajawal', sans-serif; background-color: #ffffff; user-select: none; -webkit-tap-highlight-color: transparent; }
+        /* ألوان جوجل بلاي */
+        .text-play { color: #01875f; }
+        .bg-play { background-color: #01875f; }
+        .btn-press:active { transform: scale(0.97); opacity: 0.9; }
+        
+        /* إخفاء شريط التمرير */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* تنسيق الحقول */
+        .input-field { width: 100%; background: #f8f9fa; border: 1px solid #dadce0; padding: 12px; border-radius: 8px; outline: none; transition: all 0.2s; }
+        .input-field:focus { border-color: #01875f; background: #fff; box-shadow: 0 1px 4px rgba(1,135,95,0.2); }
+    </style>
 
-        // --- إعدادات مشروعك الخاص (all-in-b0422) ---
+    <!-- كود التطبيق والاتصال -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, doc, addDoc, deleteDoc, updateDoc, onSnapshot, collection, query, orderBy, increment, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        // --- 1. إعدادات مشروعك بدقة ---
         const firebaseConfig = {
             apiKey: "AIzaSyDY1FNxvECtaV_dflCzkRH4pHQi_HQ4fwA",
             authDomain: "all-in-b0422.firebaseapp.com",
@@ -33,747 +45,435 @@
             measurementId: "G-W77R09ZTP5"
         };
 
-        // تهيئة التطبيق
-        const app = initializeApp(firebaseConfig);
-        const analytics = getAnalytics(app); // تفعيل التحليلات كما طلبت
-        const db = getFirestore(app);
-        const auth = getAuth(app);
-
-        // جعل المتغيرات متاحة للكود الخارجي
-        window.db = db;
-        window.auth = auth;
+        // تهيئة المتغيرات
+        let app, db, auth;
+        let currentUser = null;
+        let isAdmin = false;
+        const ADMIN_PHONE = "07828937302";
+        const ADMIN_PIN = "1420";
         
-        // تسجيل الدخول المجهول (للسماح بالقراءة والكتابة)
-        signInAnonymously(auth).then(() => {
-            console.log("تم الاتصال بمشروع all-in-b0422 بنجاح!");
-            initVisitorCounter(db);
-            initAppsListener(db);
-            document.getElementById('loadingState').classList.add('hidden'); // إخفاء شاشة التحميل عند النجاح
-        }).catch((error) => {
-            console.error("خطأ في الاتصال:", error);
-            alert("تنبيه: لم يتم تفعيل تسجيل الدخول Anonymous في لوحة تحكم فايربيس.");
-        });
-
-        // --- دوال قاعدة البيانات (نفس المنطق السابق) ---
-
-        // 1. عداد الزوار
-        function initVisitorCounter(db) {
-            const statsRef = doc(db, "system", "stats");
-            updateDoc(statsRef, { visitors: increment(1) }).catch(async (err) => {
-                if (err.code === 'not-found') {
-                    await setDoc(statsRef, { visitors: 1 });
-                } else if (err.code === 'permission-denied') {
-                    console.warn("تنبيه: تحتاج لتعديل قواعد الأمان (Rules) في Firestore.");
+        // بدء التشغيل ومحاولة الاتصال
+        try {
+            app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            auth = getAuth(app);
+            
+            // مراقبة حالة الاتصال وتشخيص الأخطاء
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    currentUser = user;
+                    document.getElementById('statusMsg').classList.add('hidden'); // إخفاء رسالة الخطأ
+                    loadApps(); // تحميل التطبيقات
+                    loadStats(); // تحميل الزوار
+                } else {
+                    signInAnonymously(auth).catch(handleAuthError);
                 }
             });
-
-            onSnapshot(statsRef, (doc) => {
-                if (doc.exists()) {
-                    const count = doc.data().visitors || 0;
-                    const el = document.getElementById('visitorCount');
-                    if(el) el.innerText = count.toLocaleString('en-US');
-                }
-            }, (error) => console.log("انتظار تفعيل القواعد..."));
+        } catch (e) {
+            showError("خطأ فادح في التهيئة: " + e.message);
         }
 
-        // 2. جلب التطبيقات
-        function initAppsListener(db) {
+        function handleAuthError(error) {
+            console.error("Auth Error:", error);
+            let msg = "مشكلة في الاتصال: " + error.message;
+            if (error.code === 'auth/operation-not-allowed') {
+                msg = "تنبيه هام: يجب تفعيل خيار (Anonymous) في قائمة Authentication في لوحة تحكم Firebase.";
+            }
+            showError(msg);
+        }
+
+        function showError(msg) {
+            const el = document.getElementById('statusMsg');
+            el.classList.remove('hidden');
+            el.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> ${msg}`;
+        }
+
+        // --- 2. تحميل البيانات ---
+        function loadApps() {
             const q = query(collection(db, "apps"), orderBy("createdAt", "desc"));
-            
             onSnapshot(q, (snapshot) => {
-                const apps = [];
+                const grid = document.getElementById('appsGrid');
+                grid.innerHTML = ''; // تنظيف
+                
+                if (snapshot.empty) {
+                    document.getElementById('emptyState').classList.remove('hidden');
+                    return;
+                }
+                document.getElementById('emptyState').classList.add('hidden');
+
                 snapshot.forEach((doc) => {
-                    apps.push({ id: doc.id, ...doc.data() });
+                    const data = doc.data();
+                    createAppCard(doc.id, data);
                 });
-                window.appData = apps;
-                window.dispatchEvent(new CustomEvent('apps-updated'));
             }, (error) => {
-                console.error("فشل جلب البيانات: تأكد من إنشاء قاعدة البيانات في الكونسول", error);
-                document.getElementById('emptyState').style.display = 'flex';
-                document.getElementById('emptyState').querySelector('p').innerText = "يرجى إنشاء قاعدة البيانات Firestore";
+                if (error.code === 'permission-denied') {
+                    showError("خطأ صلاحيات: تأكد من تحديث الـ Rules في Firestore إلى 'allow read, write: if true;' مؤقتاً أو 'if request.auth != null;'");
+                } else {
+                    showError("خطأ في تحميل البيانات: " + error.message);
+                }
             });
         }
 
-        // --- دوال الإضافة والحذف (Public API) ---
-
-        window.addAppToFirestore = async (appData) => {
-            try {
-                await addDoc(collection(db, "apps"), {
-                    ...appData,
-                    createdAt: serverTimestamp(),
-                    reviews: appData.reviews || [] 
-                });
-                return true;
-            } catch (e) {
-                console.error("Error adding app: ", e);
-                alert("فشل النشر: تأكد من قواعد الأمان (Rules)");
-                return false;
+        function loadStats() {
+            const docRef = doc(db, "system", "stats");
+            // تحديث الزوار مرة واحدة بالجلسة لتقليل الكتابة
+            if (!sessionStorage.getItem('visited')) {
+                updateDoc(docRef, { visitors: increment(1) }).catch(() => {}); // تجاهل الخطأ إذا لم يوجد المستند
+                sessionStorage.setItem('visited', 'true');
             }
-        };
-
-        window.deleteAppFromFirestore = async (id) => {
-            try {
-                await deleteDoc(doc(db, "apps", id));
-                return true;
-            } catch (e) {
-                console.error("Error deleting app: ", e);
-                return false;
-            }
-        };
-
-        window.addReviewToFirestore = async (appId, review) => {
-            try {
-                const appRef = doc(db, "apps", appId);
-                const appDoc = await getDoc(appRef);
-                if(appDoc.exists()) {
-                    const currentReviews = appDoc.data().reviews || [];
-                    await updateDoc(appRef, { reviews: [review, ...currentReviews] });
-                    return true;
-                }
-            } catch(e) {
-                console.error("Error adding review: ", e);
-                return false;
-            }
-        };
-    </script>
-    
-    <!-- CSS Styles -->
-    <style>
-        body { font-family: 'Tajawal', sans-serif; background-color: #ffffff; color: #202124; overflow: hidden; }
-        .text-play-green { color: #01875f; }
-        .bg-play-green { background-color: #01875f; }
-        .hover-play-green:hover { background-color: #016f4e; }
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #dadce0; border-radius: 3px; }
-        .app-card { transition: transform 0.2s, box-shadow 0.2s; }
-        .app-card:hover { box-shadow: 0 4px 6px rgba(0,0,0,0.1); transform: translateY(-2px); }
-        .nav-item.active { color: #01875f; background-color: #e8f0fe; }
-        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        .animate-slide-up { animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-        .page-overlay { transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s; transform: translateY(100%); opacity: 0; pointer-events: none; }
-        .page-overlay.active { transform: translateY(0); opacity: 1; pointer-events: auto; }
-    </style>
-</head>
-<body class="flex flex-col h-screen">
-
-    <!-- Sidebar Overlay -->
-    <div id="sidebarOverlay" onclick="toggleSidebar()" class="fixed inset-0 bg-black/50 z-40 hidden transition-opacity opacity-0"></div>
-
-    <!-- Header -->
-    <header class="bg-white h-16 flex items-center px-4 justify-between shadow-sm z-30 border-b border-gray-200 shrink-0 relative">
-        <div class="flex items-center gap-3 w-full md:w-auto">
-            <button class="md:hidden text-gray-500 p-2 rounded-full hover:bg-gray-100 transition" onclick="toggleSidebar()">
-                <i class="fa-solid fa-bars text-lg"></i>
-            </button>
             
-            <div class="flex items-center gap-3 cursor-pointer select-none" onclick="location.reload()">
-                <img src="https://raw.githubusercontent.com/iqsd2020-ctrl/All_in_one/refs/heads/main/app-drawer.png" class="w-8 h-8 object-contain" alt="Logo">
-                <span class="text-xl font-bold text-gray-600 hidden sm:block tracking-tight">تطبيقاتي</span>
-            </div>
+            onSnapshot(docRef, (doc) => {
+                if(doc.exists()) document.getElementById('visitorCount').innerText = doc.data().visitors || 0;
+            });
+        }
 
-            <!-- Desktop Search -->
-            <div class="hidden md:block flex-grow max-w-xl mx-6">
-                <div class="relative group">
-                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-gray-400 group-focus-within:text-play-green transition-colors">
-                        <i class="fa-solid fa-magnifying-glass"></i>
-                    </div>
-                    <input type="text" id="searchInput" class="w-full bg-gray-100 text-gray-700 rounded-lg py-2.5 pr-10 pl-4 focus:outline-none focus:bg-white focus:shadow-md transition-all placeholder-gray-500" placeholder="البحث في التطبيقات والألعاب...">
+        // --- 3. الرسم والعرض (DOM) ---
+        function createAppCard(id, app) {
+            const grid = document.getElementById('appsGrid');
+            const div = document.createElement('div');
+            div.className = "flex flex-col gap-2 cursor-pointer group active:scale-95 transition-transform";
+            
+            // التحقق من الصورة
+            const isIcon = app.icon && app.icon.startsWith('fa');
+            const imgHtml = isIcon 
+                ? `<div class="w-full h-full bg-play text-white flex items-center justify-center text-4xl"><i class="${app.icon}"></i></div>` 
+                : `<img src="${app.icon}" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/150?text=Error'">`;
+
+            div.innerHTML = `
+                <div class="aspect-square rounded-2xl shadow-sm border border-gray-100 bg-gray-50 overflow-hidden relative">
+                    ${imgHtml}
+                    ${app.type === 'movie' ? '<div class="absolute inset-0 bg-black/30 flex items-center justify-center"><i class="fa-solid fa-play text-white text-2xl"></i></div>' : ''}
                 </div>
-            </div>
+                <div>
+                    <h3 class="text-xs font-bold text-gray-900 line-clamp-1">${app.name}</h3>
+                    <p class="text-[10px] text-gray-500 truncate">${app.dev}</p>
+                </div>
+            `;
+            
+            // عند النقر
+            div.onclick = () => openDetails(id, app);
+            grid.appendChild(div);
+        }
+
+        // --- 4. الوظائف العامة (Global Functions) ---
+        window.openDetails = (id, app) => {
+            const modal = document.getElementById('detailsModal');
+            
+            // تعبئة البيانات
+            document.getElementById('dName').innerText = app.name;
+            document.getElementById('dDev').innerText = app.dev;
+            document.getElementById('dDesc').innerText = app.desc || "لا يوجد وصف";
+            
+            // الأيقونة
+            const iconCont = document.getElementById('dIcon');
+            if(app.icon && app.icon.startsWith('fa')) {
+                iconCont.innerHTML = `<div class="w-24 h-24 rounded-2xl bg-play text-white flex items-center justify-center text-4xl shadow-lg"><i class="${app.icon}"></i></div>`;
+            } else {
+                iconCont.innerHTML = `<img src="${app.icon}" class="w-24 h-24 rounded-2xl shadow-lg object-cover bg-white">`;
+            }
+
+            // زر الفتح (إصلاح الرابط)
+            const btn = document.getElementById('dOpenBtn');
+            btn.innerText = app.type === 'movie' ? "مشاهدة الآن" : "تحميل / فتح";
+            btn.onclick = () => {
+                if (!app.streamUrl) {
+                    alert("عذراً، لم يضع الناشر رابطاً لهذا التطبيق.");
+                    return;
+                }
+                // التأكد من البروتوكول
+                let url = app.streamUrl;
+                if (!url.startsWith('http')) url = 'https://' + url;
+                window.open(url, '_blank');
+            };
+
+            // زر الحذف (للمسؤول)
+            const delBtn = document.getElementById('dDeleteBtn');
+            if (isAdmin) {
+                delBtn.classList.remove('hidden');
+                delBtn.onclick = async () => {
+                    if(confirm("حذف نهائي؟")) {
+                        await deleteDoc(doc(db, "apps", id));
+                        closeModal('detailsModal');
+                    }
+                };
+            } else {
+                delBtn.classList.add('hidden');
+            }
+
+            // معرض الصور
+            const gallery = document.getElementById('dGallery');
+            gallery.innerHTML = '';
+            if (app.screenshots && app.screenshots.length > 0) {
+                app.screenshots.forEach(src => {
+                    const img = document.createElement('img');
+                    img.src = src;
+                    img.className = "h-48 w-auto rounded-lg border border-gray-200 shadow-sm flex-shrink-0";
+                    gallery.appendChild(img);
+                });
+                gallery.parentElement.classList.remove('hidden');
+            } else {
+                gallery.parentElement.classList.add('hidden');
+            }
+
+            modal.classList.remove('hidden');
+        };
+
+        // ضغط الصور (مهم جداً لمنع أخطاء قاعدة البيانات)
+        window.processImage = (file, maxWidth) => {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = (ev) => {
+                    const img = new Image();
+                    img.src = ev.target.result;
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        let w = img.width;
+                        let h = img.height;
+                        if (w > maxWidth) { h = (maxWidth/w)*h; w = maxWidth; }
+                        canvas.width = w;
+                        canvas.height = h;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, w, h);
+                        // ضغط الجودة إلى 0.6 لتقليل الحجم
+                        resolve(canvas.toDataURL('image/jpeg', 0.6));
+                    };
+                };
+                reader.onerror = reject;
+            });
+        };
+
+        window.submitApp = async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('pubBtn');
+            btn.innerText = "جاري المعالجة...";
+            btn.disabled = true;
+
+            try {
+                // جمع البيانات
+                const name = document.getElementById('iName').value;
+                const dev = document.getElementById('iDev').value;
+                const desc = document.getElementById('iDesc').value;
+                const url = document.getElementById('iUrl').value;
+                const type = document.getElementById('iTypeApp').classList.contains('bg-play') ? 'app' : 'movie';
+                
+                // معالجة الأيقونة
+                const iconFile = document.getElementById('iIcon').files[0];
+                let finalIcon = type === 'app' ? 'fa-brands fa-android' : 'fa-solid fa-film';
+                
+                if (iconFile) {
+                    // ضغط الأيقونة إلى 150 بكسل
+                    finalIcon = await window.processImage(iconFile, 150);
+                }
+
+                // معالجة الصور (Screenshots)
+                const screenFiles = document.getElementById('iScreens').files;
+                let screenshots = [];
+                if (screenFiles.length > 0) {
+                    for(let i=0; i<Math.min(screenFiles.length, 2); i++) {
+                        // ضغط الصور إلى 500 بكسل وبحد أقصى صورتين فقط لتجنب امتلاء المستند
+                        const compressed = await window.processImage(screenFiles[i], 500);
+                        screenshots.push(compressed);
+                    }
+                }
+
+                // الإرسال
+                await addDoc(collection(db, "apps"), {
+                    name, dev, desc, streamUrl: url, type,
+                    icon: finalIcon,
+                    screenshots: screenshots,
+                    createdAt: serverTimestamp()
+                });
+
+                alert("تم النشر بنجاح!");
+                closeModal('addModal');
+                e.target.reset();
+
+            } catch (err) {
+                console.error(err);
+                alert("فشل النشر: " + err.message + "\n(نصيحة: قلل عدد الصور أو جودتها)");
+            } finally {
+                btn.innerText = "نشر الآن";
+                btn.disabled = false;
+            }
+        };
+
+        // تسجيل الدخول كمسؤول
+        window.login = (e) => {
+            e.preventDefault();
+            const p = document.getElementById('pPhone').value;
+            const c = document.getElementById('pPin').value;
+            if (p === ADMIN_PHONE && c === ADMIN_PIN) {
+                isAdmin = true;
+                document.getElementById('adminPanel').classList.remove('hidden');
+                document.getElementById('loginForm').classList.add('hidden');
+                document.getElementById('navAddBtn').classList.remove('hidden'); // إظهار زر الإضافة
+            } else {
+                alert("بيانات خاطئة");
+            }
+        };
+
+        // تبديل نوع التطبيق في النموذج
+        window.toggleType = (t) => {
+            const btnApp = document.getElementById('iTypeApp');
+            const btnMov = document.getElementById('iTypeMov');
+            if (t === 'app') {
+                btnApp.className = "flex-1 py-2 rounded font-bold bg-play text-white transition";
+                btnMov.className = "flex-1 py-2 rounded font-bold bg-gray-200 text-gray-600 transition";
+                document.getElementById('lUrl').innerText = "رابط التحميل";
+            } else {
+                btnMov.className = "flex-1 py-2 rounded font-bold bg-play text-white transition";
+                btnApp.className = "flex-1 py-2 rounded font-bold bg-gray-200 text-gray-600 transition";
+                document.getElementById('lUrl').innerText = "رابط المشاهدة";
+            }
+        };
+
+        // دوال الواجهة
+        window.openModal = (id) => document.getElementById(id).classList.remove('hidden');
+        window.closeModal = (id) => document.getElementById(id).classList.add('hidden');
+    </script>
+</head>
+<body class="bg-white h-screen flex flex-col">
+
+    <!-- 1. Header -->
+    <header class="h-16 border-b flex items-center justify-between px-4 sticky top-0 bg-white z-20">
+        <div class="flex items-center gap-3">
+            <img src="https://raw.githubusercontent.com/iqsd2020-ctrl/All_in_one/refs/heads/main/app-drawer.png" class="w-8 h-8" alt="Logo">
+            <h1 class="text-xl font-bold text-gray-700 hidden sm:block">تطبيقاتي</h1>
+        </div>
+        
+        <!-- Search -->
+        <div class="flex-1 max-w-md mx-4 hidden sm:block">
+            <input type="text" placeholder="بحث..." class="w-full bg-gray-100 border-none rounded-lg px-4 py-2 focus:ring-2 focus:ring-green-500 outline-none">
         </div>
 
-        <!-- Header Actions -->
-        <div class="flex items-center gap-2 sm:gap-4">
-            <!-- Visitor Count -->
-            <div class="flex flex-col items-end text-xs text-gray-500 leading-tight bg-gray-50 px-3 py-1 rounded-md border border-gray-100">
-                <span class="flex items-center gap-1"><i class="fa-solid fa-eye text-play-green"></i> الزوار</span>
-                <b id="visitorCount" class="text-gray-800 text-sm">...</b>
+        <div class="flex items-center gap-3">
+            <div class="text-xs bg-gray-50 border px-2 py-1 rounded text-gray-500">
+                <i class="fa-solid fa-eye text-play"></i> <span id="visitorCount">..</span>
             </div>
-
-            <!-- Admin Button -->
-            <button id="addAppBtn" onclick="openModal('add')" class="hidden bg-play-green hover:bg-[#016f4e] text-white px-4 py-2 rounded-lg text-sm font-bold transition shadow-sm items-center gap-2 active:scale-95">
-                <i class="fa-solid fa-plus"></i> <span class="hidden sm:inline">نشر</span>
+            <button id="navAddBtn" onclick="openModal('addModal')" class="hidden bg-play text-white px-3 py-1.5 rounded-lg text-sm font-bold btn-press">
+                <i class="fa-solid fa-plus"></i> نشر
             </button>
-
-            <!-- Profile -->
-            <div id="userAvatar" onclick="openModal('settings')" class="w-9 h-9 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-500 flex items-center justify-center text-sm cursor-pointer transition shadow-sm border border-white ring-2 ring-transparent hover:ring-gray-200">
+            <button onclick="openModal('settingsModal')" class="w-9 h-9 bg-gray-200 rounded-full flex items-center justify-center text-gray-500 hover:bg-gray-300">
                 <i class="fa-solid fa-user"></i>
-            </div>
+            </button>
         </div>
     </header>
 
-    <!-- Mobile Search -->
-    <div class="md:hidden p-3 bg-white border-b border-gray-100 shrink-0 z-20">
-        <div class="relative">
-            <input type="text" id="mobileSearchInput" class="w-full bg-gray-100 rounded-lg px-4 py-2 pr-10 focus:outline-none focus:ring-1 focus:ring-play-green placeholder-gray-500 text-sm" placeholder="البحث...">
-            <i class="fa-solid fa-magnifying-glass absolute right-3 top-2.5 text-gray-400 text-sm"></i>
+    <!-- Error Status Bar -->
+    <div id="statusMsg" class="bg-red-100 text-red-700 px-4 py-3 text-sm font-bold border-b border-red-200 hidden"></div>
+
+    <!-- 2. Main Content -->
+    <main class="flex-1 overflow-y-auto p-4">
+        
+        <!-- Empty State -->
+        <div id="emptyState" class="hidden flex flex-col items-center justify-center py-20 text-gray-400">
+            <i class="fa-solid fa-box-open text-5xl mb-2"></i>
+            <p>لا يوجد تطبيقات منشورة</p>
         </div>
-    </div>
 
-    <!-- Main Layout -->
-    <div class="flex flex-1 overflow-hidden relative">
-        <!-- Sidebar -->
-        <aside id="sidebar" class="fixed inset-y-0 right-0 z-50 w-72 bg-white transform translate-x-full md:translate-x-0 md:static md:w-64 md:block border-l border-gray-200 overflow-y-auto transition-transform duration-300 ease-in-out shadow-2xl md:shadow-none flex flex-col">
-            <div class="flex items-center justify-between p-4 border-b md:hidden">
-                <span class="font-bold text-gray-700">القائمة</span>
-                <button onclick="toggleSidebar()" class="text-gray-500 p-2"><i class="fa-solid fa-xmark text-xl"></i></button>
-            </div>
-            <div class="py-4 px-2 space-y-1">
-                <button onclick="filterCategory('all', this)" class="nav-item active w-full flex items-center px-4 py-3 text-sm font-bold rounded-full transition-colors">
-                    <i class="fa-solid fa-layer-group w-8 text-lg ml-2"></i> الكل
-                </button>
-                <button onclick="filterCategory('apps', this)" class="nav-item w-full flex items-center px-4 py-3 text-sm font-medium rounded-full text-gray-600 transition-colors">
-                    <i class="fa-solid fa-mobile-screen w-8 text-lg ml-2"></i> التطبيقات
-                </button>
-                <button onclick="filterCategory('movies', this)" class="nav-item w-full flex items-center px-4 py-3 text-sm font-medium rounded-full text-gray-600 transition-colors">
-                    <i class="fa-solid fa-clapperboard w-8 text-lg ml-2"></i> الأفلام
-                </button>
-                <div class="border-t my-3 mx-4"></div>
-                <button onclick="openModal('settings')" class="nav-item w-full flex items-center px-4 py-3 text-sm font-medium rounded-full text-gray-600 transition-colors">
-                    <i class="fa-solid fa-shield-halved w-8 text-lg ml-2"></i> منطقة المسؤول
-                </button>
-            </div>
-        </aside>
-
-        <!-- Content -->
-        <main class="flex-1 overflow-y-auto p-4 md:p-6 bg-white scroll-smooth w-full relative">
-            <div class="flex items-center justify-between mb-4">
-                <h2 id="sectionTitle" class="text-lg font-bold text-gray-800">المحتوى المقترح</h2>
-            </div>
-
-            <!-- Loader -->
-            <div id="loadingState" class="flex flex-col items-center justify-center py-20">
-                <i class="fa-solid fa-circle-notch fa-spin text-play-green text-4xl mb-4"></i>
-                <p class="text-gray-400 text-sm">جاري الاتصال بـ all-in-b0422...</p>
-            </div>
-
-            <!-- Grid -->
-            <div id="appsGrid" class="hidden grid grid-cols-3 min-[500px]:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 gap-3 md:gap-6 pb-20"></div>
-
-            <!-- Empty State -->
-            <div id="emptyState" class="hidden flex-col items-center justify-center py-24 text-center opacity-60">
-                <i class="fa-regular fa-folder-open text-6xl text-gray-300 mb-4"></i>
-                <p class="text-gray-500 font-medium">لا توجد تطبيقات بعد</p>
-            </div>
-        </main>
-    </div>
-
-    <!-- ================= MODALS ================= -->
-
-    <!-- Details Page -->
-    <div id="appDetailsPage" class="fixed inset-0 z-50 bg-white page-overlay overflow-y-auto flex flex-col">
-        <div class="sticky top-0 bg-white/95 backdrop-blur-md flex items-center justify-between px-4 py-3 border-b border-gray-100 z-20 shadow-sm">
-            <button onclick="closeAppDetails()" class="text-gray-600 hover:bg-gray-100 p-2 rounded-full transition"><i class="fa-solid fa-arrow-right text-xl"></i></button>
-            <div class="font-bold text-gray-800 text-sm truncate max-w-[200px]" id="detailHeaderTitle">تفاصيل</div>
-            <div class="w-8"></div>
+        <!-- Grid -->
+        <div id="appsGrid" class="grid grid-cols-3 min-[450px]:grid-cols-4 sm:grid-cols-5 md:grid-cols-6 gap-4 pb-10">
+            <!-- يتم توليد البطاقات هنا -->
         </div>
-        <div id="detailsContent" class="p-5 md:p-8 max-w-4xl mx-auto w-full animate-slide-up pb-20"></div>
-    </div>
+    </main>
 
-    <!-- Add Content Modal -->
-    <div id="addModal" class="fixed inset-0 z-[60] hidden" role="dialog">
-        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeModal('add')"></div>
-        <div class="absolute inset-0 flex items-center justify-center p-4 pointer-events-none">
-            <div class="bg-white w-full max-w-lg rounded-2xl shadow-2xl flex flex-col max-h-[90vh] pointer-events-auto overflow-hidden animate-slide-up">
-                <div class="px-6 py-4 border-b flex justify-between items-center bg-gray-50">
-                    <h3 class="font-bold text-gray-800">نشر محتوى جديد</h3>
-                    <button onclick="closeModal('add')" class="text-gray-400 hover:text-red-500"><i class="fa-solid fa-xmark text-xl"></i></button>
-                </div>
-                <div class="overflow-y-auto p-6">
-                    <form id="addAppForm" onsubmit="handleFormSubmit(event)" class="space-y-4">
-                        <div class="flex p-1 bg-gray-100 rounded-lg">
-                            <button type="button" onclick="setFormType('app')" id="btnTypeApp" class="flex-1 py-2 rounded-md text-sm font-bold shadow-sm bg-white text-play-green transition">تطبيق</button>
-                            <button type="button" onclick="setFormType('movie')" id="btnTypeMovie" class="flex-1 py-2 rounded-md text-sm font-medium text-gray-500 transition">فيلم</button>
-                        </div>
-                        <div class="grid grid-cols-2 gap-4">
-                            <div class="col-span-2"><label class="block text-xs font-bold text-gray-700 mb-1">الاسم</label><input type="text" id="inputName" required class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:border-play-green focus:ring-1"></div>
-                            <div class="col-span-2"><label class="block text-xs font-bold text-gray-700 mb-1" id="lblDev">المطور</label><input type="text" id="inputDev" required class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:border-play-green focus:ring-1"></div>
-                        </div>
-                        <div><label class="block text-xs font-bold text-gray-700 mb-1">الوصف</label><textarea id="inputDesc" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:border-play-green focus:ring-1 h-24 resize-none"></textarea></div>
-                        <div class="grid grid-cols-1 gap-4">
-                            <div id="fieldUrl" class="hidden"><label class="block text-xs font-bold text-gray-700 mb-1">رابط الفيديو</label><input type="url" id="inputUrl" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none text-left" dir="ltr"></div>
-                            <div>
-                                <label class="block text-xs font-bold text-gray-700 mb-1">الأيقونة</label>
-                                <div class="flex gap-3 items-center">
-                                    <div class="w-16 h-16 rounded-xl bg-gray-100 border border-dashed border-gray-300 flex items-center justify-center overflow-hidden relative hover:border-play-green cursor-pointer">
-                                        <img id="previewIcon" class="w-full h-full object-cover hidden">
-                                        <i class="fa-solid fa-camera text-gray-400" id="iconPlaceholder"></i>
-                                        <input type="file" id="inputFile" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer" onchange="handleFilePreview(this)">
-                                    </div>
-                                    <div class="text-xs text-gray-500">اضغط لرفع صورة</div>
-                                </div>
-                            </div>
-                            <div class="border-t pt-4 mt-2">
-                                <div class="flex justify-between items-center mb-2"><label class="block text-xs font-bold text-gray-700">تعليقات وهمية (اختياري)</label><button type="button" onclick="toggleFakeReviewForm()" class="text-xs text-play-green font-bold hover:underline">+ إضافة</button></div>
-                                <div id="fakeReviewForm" class="hidden bg-gray-50 p-3 rounded-lg border border-gray-200 mb-3 space-y-2">
-                                    <input type="text" id="fakeUser" placeholder="اسم المستخدم" class="w-full text-xs border p-2 rounded">
-                                    <select id="fakeRating" class="w-full text-xs border p-2 rounded"><option value="5">5 نجوم</option><option value="4">4 نجوم</option><option value="3">3 نجوم</option></select>
-                                    <input type="text" id="fakeComment" placeholder="التعليق..." class="w-full text-xs border p-2 rounded">
-                                    <button type="button" onclick="addTempReview()" class="w-full bg-gray-800 text-white py-1.5 rounded text-xs">إدراج</button>
-                                </div>
-                                <div id="tempReviewsList" class="space-y-1 max-h-32 overflow-y-auto"></div>
-                            </div>
-                        </div>
-                        <div class="pt-4 border-t flex justify-end gap-3">
-                            <button type="button" onclick="closeModal('add')" class="px-4 py-2 text-sm font-bold text-gray-600 hover:bg-gray-100 rounded-lg">إلغاء</button>
-                            <button type="submit" id="submitBtn" class="px-6 py-2 text-sm font-bold text-white bg-play-green hover:bg-[#016f4e] rounded-lg shadow-md">نشر الآن</button>
-                        </div>
-                    </form>
-                </div>
+    <!-- 3. Modals -->
+
+    <!-- Add Modal -->
+    <div id="addModal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-md rounded-xl shadow-2xl flex flex-col max-h-[90vh] overflow-hidden animate-[fadeIn_0.2s]">
+            <div class="px-4 py-3 border-b flex justify-between font-bold">
+                <span>نشر جديد</span>
+                <button onclick="closeModal('addModal')" class="text-gray-500"><i class="fa-solid fa-xmark"></i></button>
             </div>
-        </div>
-    </div>
-
-    <!-- Settings Modal -->
-    <div id="settingsModal" class="fixed inset-0 z-[70] hidden" role="dialog">
-        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeModal('settings')"></div>
-        <div class="absolute inset-0 flex items-center justify-center p-4 pointer-events-none">
-            <div class="bg-white w-full max-w-sm rounded-2xl shadow-2xl p-6 pointer-events-auto animate-slide-up text-center">
-                <div id="viewLogin">
-                    <div class="w-14 h-14 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-500"><i class="fa-solid fa-lock text-2xl"></i></div>
-                    <h3 class="font-bold text-lg mb-1">لوحة المسؤول</h3>
-                    <form onsubmit="handleLogin(event)" class="space-y-3 mt-4">
-                        <input type="tel" id="loginPhone" placeholder="رقم الهاتف" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-2.5 text-sm text-left outline-none focus:border-play-green" dir="ltr">
-                        <input type="password" id="loginPin" placeholder="PIN" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-2.5 text-sm text-center tracking-widest outline-none focus:border-play-green" maxlength="4">
-                        <button type="submit" class="w-full bg-play-green text-white py-2.5 rounded-lg font-bold text-sm hover:bg-[#016f4e] transition">دخول</button>
-                    </form>
-                </div>
-                <div id="viewAdmin" class="hidden">
-                    <div class="w-14 h-14 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4 text-play-green"><i class="fa-solid fa-user-check text-2xl"></i></div>
-                    <h3 class="font-bold text-lg mb-2">مرحباً بك</h3>
-                    <p class="text-sm text-gray-600 mb-6">أنت الآن في وضع المسؤول</p>
-                    <button onclick="handleLogout()" class="w-full border border-red-500 text-red-500 py-2 rounded-lg font-bold text-sm hover:bg-red-50 transition">تسجيل الخروج</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- User Review Modal -->
-    <div id="reviewModal" class="fixed inset-0 z-[80] hidden" role="dialog">
-        <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" onclick="closeModal('review')"></div>
-        <div class="absolute bottom-0 md:inset-0 md:flex md:items-center md:justify-center p-0 md:p-4 pointer-events-none">
-            <div class="bg-white w-full md:w-[400px] rounded-t-2xl md:rounded-2xl shadow-2xl p-6 pointer-events-auto animate-slide-up">
-                <h3 class="font-bold text-lg mb-4">أضف تقييمك</h3>
-                <form onsubmit="submitUserReview(event)" class="space-y-4">
-                    <div class="flex justify-center gap-2 text-2xl text-gray-300 mb-4" id="starContainer">
-                        <i class="fa-solid fa-star hover:text-yellow-400 transition cursor-pointer" onclick="setRating(1)"></i>
-                        <i class="fa-solid fa-star hover:text-yellow-400 transition cursor-pointer" onclick="setRating(2)"></i>
-                        <i class="fa-solid fa-star hover:text-yellow-400 transition cursor-pointer" onclick="setRating(3)"></i>
-                        <i class="fa-solid fa-star hover:text-yellow-400 transition cursor-pointer" onclick="setRating(4)"></i>
-                        <i class="fa-solid fa-star hover:text-yellow-400 transition cursor-pointer" onclick="setRating(5)"></i>
+            <div class="p-4 overflow-y-auto">
+                <form onsubmit="window.submitApp(event)" class="space-y-4">
+                    <div class="flex gap-2">
+                        <button type="button" id="iTypeApp" onclick="toggleType('app')" class="flex-1 py-2 rounded font-bold bg-play text-white">تطبيق</button>
+                        <button type="button" id="iTypeMov" onclick="toggleType('mov')" class="flex-1 py-2 rounded font-bold bg-gray-200 text-gray-600">فيلم</button>
                     </div>
-                    <input type="hidden" id="userRatingValue" value="0">
-                    <input type="text" id="userNameInput" required placeholder="اسمك" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none">
-                    <textarea id="userCommentInput" required placeholder="رأيك..." class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none h-20 resize-none"></textarea>
-                    <button type="submit" class="w-full bg-play-green text-white py-2.5 rounded-lg font-bold text-sm hover:bg-[#016f4e]">نشر التقييم</button>
+                    
+                    <input id="iName" type="text" class="input-field" placeholder="الاسم (مثال: واتساب)" required>
+                    <input id="iDev" type="text" class="input-field" placeholder="المطور / الشركة" required>
+                    <textarea id="iDesc" class="input-field h-20 resize-none" placeholder="الوصف..."></textarea>
+                    
+                    <div>
+                        <label id="lUrl" class="text-xs font-bold block mb-1">رابط التحميل</label>
+                        <input id="iUrl" type="url" class="input-field bg-yellow-50" placeholder="https://..." required>
+                    </div>
+
+                    <div class="flex gap-2">
+                        <div class="w-1/3">
+                            <label class="text-[10px] font-bold block mb-1">الأيقونة</label>
+                            <input id="iIcon" type="file" accept="image/*" class="text-xs w-full">
+                        </div>
+                        <div class="w-2/3">
+                            <label class="text-[10px] font-bold block mb-1">لقطات (Max 2)</label>
+                            <input id="iScreens" type="file" accept="image/*" multiple class="text-xs w-full">
+                        </div>
+                    </div>
+
+                    <button id="pubBtn" type="submit" class="w-full bg-play text-white py-3 rounded-lg font-bold btn-press">نشر الآن</button>
                 </form>
             </div>
         </div>
     </div>
 
-    <!-- Video Player -->
-    <div id="playerOverlay" class="fixed inset-0 z-[100] bg-black hidden flex items-center justify-center">
-        <button onclick="closePlayer()" class="absolute top-5 right-5 text-white/80 hover:text-white bg-white/10 rounded-full p-3 transition z-10"><i class="fa-solid fa-xmark text-2xl"></i></button>
-        <div class="w-full max-w-6xl aspect-video bg-black shadow-2xl" id="videoContainer"></div>
+    <!-- Details Modal -->
+    <div id="detailsModal" class="fixed inset-0 bg-white z-50 hidden flex flex-col overflow-y-auto animate-[slideUp_0.3s]">
+        <div class="p-4 border-b flex items-center gap-4 sticky top-0 bg-white z-10">
+            <button onclick="closeModal('detailsModal')" class="text-gray-600 p-2 bg-gray-100 rounded-full"><i class="fa-solid fa-arrow-right"></i></button>
+            <span class="font-bold text-lg">التفاصيل</span>
+        </div>
+        <div class="p-5 max-w-2xl mx-auto w-full">
+            <div class="flex gap-4 mb-6">
+                <div id="dIcon" class="shrink-0"></div>
+                <div class="pt-1 flex-1">
+                    <h1 id="dName" class="text-2xl font-bold mb-1"></h1>
+                    <p id="dDev" class="text-play font-bold text-sm mb-3"></p>
+                    <button id="dOpenBtn" class="w-full bg-play text-white py-2 rounded-lg font-bold shadow btn-press"></button>
+                </div>
+            </div>
+
+            <div class="mb-6 hidden">
+                <h3 class="font-bold mb-2">لقطات الشاشة</h3>
+                <div id="dGallery" class="flex gap-3 overflow-x-auto pb-2"></div>
+            </div>
+
+            <div class="bg-gray-50 p-4 rounded-xl border">
+                <h3 class="font-bold text-sm mb-2 text-gray-500">نبذة</h3>
+                <p id="dDesc" class="text-sm leading-6 text-gray-700 whitespace-pre-wrap"></p>
+            </div>
+
+            <button id="dDeleteBtn" class="mt-8 w-full border border-red-500 text-red-500 py-3 rounded-lg font-bold hidden">حذف هذا المحتوى</button>
+        </div>
     </div>
 
-    <!-- Toasts -->
-    <div id="toastContainer" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-[110] flex flex-col gap-2 items-center w-full px-4 pointer-events-none"></div>
-
-    <script>
-        // --- CONFIG ---
-        const AUTH_CREDS = { phone: "07828937302", pin: "1420" };
-        let isAdmin = false;
-        let currentFilter = 'all';
-        let formType = 'app';
-        let tempReviews = []; 
-        let currentAppIdForReview = null;
-
-        // Listen for Firestore updates
-        window.addEventListener('apps-updated', () => {
-            document.getElementById('loadingState').classList.add('hidden');
-            renderGrid();
-        });
-
-        // --- CORE FUNCTIONS ---
-        function getAverageRating(reviews) {
-            if (!reviews || reviews.length === 0) return 0;
-            const sum = reviews.reduce((a, b) => a + b.rating, 0);
-            return (sum / reviews.length).toFixed(1);
-        }
-
-        function renderGrid() {
-            const grid = document.getElementById('appsGrid');
-            const queryStr = document.getElementById('searchInput').value.toLowerCase() || document.getElementById('mobileSearchInput').value.toLowerCase();
-            const items = window.appData || [];
-
-            const filtered = items.filter(item => {
-                const matchesSearch = item.name.toLowerCase().includes(queryStr) || item.dev.toLowerCase().includes(queryStr);
-                const matchesType = currentFilter === 'all' ? true : 
-                                    currentFilter === 'apps' ? item.type === 'app' : 
-                                    currentFilter === 'movies' ? item.type === 'movie' : true;
-                return matchesSearch && matchesType;
-            });
-
-            if (!window.appData) return; 
-
-            document.getElementById('emptyState').style.display = filtered.length ? 'none' : 'flex';
-            grid.classList.remove('hidden');
-            grid.innerHTML = '';
-
-            filtered.forEach(item => {
-                const rating = getAverageRating(item.reviews);
-                const isImage = !item.icon.startsWith('fa-');
-                
-                const iconEl = isImage 
-                    ? `<img src="${item.icon}" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">`
-                    : `<div class="w-full h-full flex items-center justify-center text-4xl text-white" style="background-color:${item.color}"><i class="${item.icon}"></i></div>`;
-
-                const playOverlay = item.type === 'movie' 
-                    ? `<div class="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition"><i class="fa-solid fa-play text-white text-2xl drop-shadow-lg"></i></div>` 
-                    : '';
-                
-                const div = document.createElement('div');
-                div.className = 'flex flex-col gap-2 cursor-pointer group select-none';
-                div.onclick = (e) => {
-                    if (e.target.closest('.delete-btn')) return;
-                    openDetails(item);
-                };
-
-                div.innerHTML = `
-                    <div class="relative aspect-square rounded-2xl overflow-hidden shadow-sm bg-gray-100 border border-gray-100 app-card">
-                        ${iconEl}
-                        ${playOverlay}
-                        ${isAdmin ? `<button onclick="deleteItem('${item.id}')" class="delete-btn absolute top-1 left-1 w-7 h-7 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 z-20 shadow-md"><i class="fa-solid fa-trash text-xs"></i></button>` : ''}
-                    </div>
-                    <div class="px-1">
-                        <h3 class="text-xs md:text-sm font-bold text-gray-800 line-clamp-2 leading-relaxed group-hover:text-play-green transition-colors">${item.name}</h3>
-                        <div class="flex items-center justify-between mt-1">
-                            <span class="text-[10px] text-gray-500 font-medium">${rating} <i class="fa-solid fa-star text-yellow-400"></i></span>
-                            <span class="text-[10px] text-gray-400">${item.type === 'movie' ? 'فيلم' : 'تطبيق'}</span>
-                        </div>
-                    </div>
-                `;
-                grid.appendChild(div);
-            });
-        }
-
-        // --- DETAILS & REVIEWS ---
-        function openDetails(item) {
-            currentAppIdForReview = item.id;
-            const rating = getAverageRating(item.reviews);
-            const isImage = !item.icon.startsWith('fa-');
+    <!-- Settings/Admin Modal -->
+    <div id="settingsModal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-xs rounded-xl shadow-2xl p-6 text-center">
+            <button onclick="closeModal('settingsModal')" class="absolute top-4 left-4 text-gray-400"><i class="fa-solid fa-xmark"></i></button>
             
-            const iconHtml = isImage 
-                ? `<img src="${item.icon}" class="w-28 h-28 md:w-36 md:h-36 rounded-2xl object-cover shadow-lg bg-white">`
-                : `<div class="w-28 h-28 md:w-36 md:h-36 rounded-2xl shadow-lg flex items-center justify-center text-6xl text-white" style="background-color:${item.color}"><i class="${item.icon}"></i></div>`;
+            <div id="loginForm">
+                <i class="fa-solid fa-lock text-3xl text-gray-400 mb-4"></i>
+                <h3 class="font-bold mb-4">منطقة المطورين</h3>
+                <form onsubmit="window.login(event)" class="space-y-3">
+                    <input id="pPhone" type="tel" placeholder="رقم الهاتف" class="input-field text-center" dir="ltr">
+                    <input id="pPin" type="password" placeholder="PIN" class="input-field text-center" maxlength="4">
+                    <button type="submit" class="w-full bg-gray-800 text-white py-2 rounded-lg font-bold">دخول</button>
+                </form>
+            </div>
 
-            const actionText = item.type === 'movie' ? 'مشاهدة الآن' : 'تثبيت';
-            const actionFn = item.type === 'movie' ? `openPlayer('${item.streamUrl}')` : `simulateInstall('${item.name}')`;
-            const actionIcon = item.type === 'movie' ? 'fa-play' : 'fa-download';
+            <div id="adminPanel" class="hidden">
+                <i class="fa-solid fa-check-circle text-4xl text-play mb-2"></i>
+                <h3 class="font-bold mb-1">مرحباً بك</h3>
+                <p class="text-xs text-gray-500 mb-4">صلاحيات المدير مفعلة</p>
+                <button onclick="location.reload()" class="w-full border py-2 rounded-lg text-sm text-red-500">تسجيل خروج</button>
+            </div>
+        </div>
+    </div>
 
-            const reviewsHtml = item.reviews && item.reviews.length > 0 
-                ? item.reviews.map(r => `
-                    <div class="bg-gray-50 p-4 rounded-xl border border-gray-100 mb-3">
-                        <div class="flex justify-between items-start mb-2">
-                            <div class="flex items-center gap-2">
-                                <div class="w-8 h-8 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center font-bold text-xs">${r.user.charAt(0)}</div>
-                                <span class="text-sm font-bold text-gray-800">${r.user}</span>
-                            </div>
-                            <div class="flex text-yellow-400 text-xs gap-0.5">
-                                ${Array(5).fill(0).map((_, i) => `<i class="fa-${i < r.rating ? 'solid' : 'regular'} fa-star"></i>`).join('')}
-                            </div>
-                        </div>
-                        <p class="text-sm text-gray-600 leading-relaxed">${r.comment}</p>
-                    </div>
-                `).join('')
-                : `<div class="text-center py-8 text-gray-400 text-sm">كن أول من يقيم هذا المحتوى</div>`;
-
-            document.getElementById('detailHeaderTitle').textContent = item.name;
-            document.getElementById('detailsContent').innerHTML = `
-                <div class="flex flex-col md:flex-row gap-6 mb-8">
-                    <div class="flex-shrink-0 mx-auto md:mx-0">${iconHtml}</div>
-                    <div class="flex-grow text-center md:text-right pt-2">
-                        <h1 class="text-2xl md:text-4xl font-extrabold text-gray-900 mb-2">${item.name}</h1>
-                        <div class="text-play-green font-bold text-sm mb-4">${item.dev}</div>
-                        
-                        <div class="flex items-center justify-center md:justify-start gap-6 text-sm text-gray-600 mb-6">
-                            <div class="flex flex-col items-center gap-1">
-                                <span class="font-bold text-gray-900">${rating}</span>
-                                <i class="fa-solid fa-star text-xs text-gray-400"></i>
-                            </div>
-                            <div class="w-px h-6 bg-gray-300"></div>
-                            <div class="flex flex-col items-center gap-1">
-                                <span class="font-bold text-gray-900">${item.downloads}</span>
-                                <span class="text-[10px]">تنزيل</span>
-                            </div>
-                            <div class="w-px h-6 bg-gray-300"></div>
-                            <div class="flex flex-col items-center gap-1">
-                                <span class="font-bold text-gray-900">${item.size}</span>
-                                <span class="text-[10px]">الحجم</span>
-                            </div>
-                        </div>
-
-                        <button onclick="${actionFn}" class="w-full md:w-auto bg-play-green hover:bg-[#016f4e] text-white px-8 py-3 rounded-lg font-bold shadow-lg shadow-green-900/10 transition transform active:scale-95 flex items-center justify-center gap-2">
-                            <i class="fa-solid ${actionIcon}"></i> ${actionText}
-                        </button>
-                    </div>
-                </div>
-
-                <div class="mb-8">
-                    <h3 class="font-bold text-lg mb-3 flex items-center gap-2"><i class="fa-solid fa-circle-info text-play-green"></i> الوصف</h3>
-                    <p class="text-gray-600 leading-7 text-sm md:text-base bg-gray-50 p-4 rounded-xl border border-gray-100">${item.desc}</p>
-                </div>
-
-                <div>
-                    <div class="flex items-center justify-between mb-4">
-                        <h3 class="font-bold text-lg">المراجعات</h3>
-                        <button onclick="openModal('review')" class="text-play-green text-sm font-bold hover:bg-green-50 px-3 py-1 rounded-md transition"><i class="fa-solid fa-pen"></i> تقييم</button>
-                    </div>
-                    <div class="space-y-2 max-h-[400px] overflow-y-auto pr-1">${reviewsHtml}</div>
-                </div>
-            `;
-
-            const page = document.getElementById('appDetailsPage');
-            page.classList.remove('hidden');
-            setTimeout(() => page.classList.add('active'), 10);
-            document.body.style.overflow = 'hidden';
-        }
-
-        function closeAppDetails() {
-            const page = document.getElementById('appDetailsPage');
-            page.classList.remove('active');
-            setTimeout(() => page.classList.add('hidden'), 300);
-            document.body.style.overflow = '';
-            currentAppIdForReview = null;
-        }
-
-        // --- ADDING CONTENT ---
-        async function handleFormSubmit(e) {
-            e.preventDefault();
-            if(!isAdmin) return;
-
-            const btn = document.getElementById('submitBtn');
-            btn.disabled = true;
-            btn.innerText = "جاري النشر...";
-
-            const name = document.getElementById('inputName').value;
-            const dev = document.getElementById('inputDev').value;
-            const desc = document.getElementById('inputDesc').value;
-            const url = document.getElementById('inputUrl').value;
-            
-            let icon = formType === 'app' ? 'fa-brands fa-android' : 'https://placehold.co/400x600/222/fff?text=Movie';
-            const fileInput = document.getElementById('inputFile');
-            
-            const saveToDb = async (finalIcon) => {
-                const appData = {
-                    type: formType,
-                    name,
-                    dev,
-                    desc,
-                    icon: finalIcon,
-                    color: '#01875f',
-                    size: formType === 'movie' ? 'HD' : (Math.floor(Math.random() * 100) + 20) + ' MB',
-                    downloads: '0',
-                    streamUrl: formType === 'movie' ? url : null,
-                    reviews: [...tempReviews]
-                };
-
-                const success = await window.addAppToFirestore(appData);
-                btn.disabled = false;
-                btn.innerText = "نشر الآن";
-
-                if(success) {
-                    showToast('تم النشر بنجاح');
-                    closeModal('add');
-                    e.target.reset();
-                    tempReviews = [];
-                    renderTempReviews();
-                    document.getElementById('previewIcon').classList.add('hidden');
-                    document.getElementById('iconPlaceholder').classList.remove('hidden');
-                } else {
-                    showToast('حدث خطأ أثناء النشر', 'error');
-                }
-            };
-
-            if (fileInput.files && fileInput.files[0]) {
-                const reader = new FileReader();
-                reader.onload = (evt) => saveToDb(evt.target.result);
-                reader.readAsDataURL(fileInput.files[0]);
-            } else {
-                saveToDb(icon);
-            }
-        }
-
-        // --- REVIEWS ---
-        function setRating(val) {
-            document.getElementById('userRatingValue').value = val;
-            const stars = document.getElementById('starContainer').children;
-            for(let i=0; i<5; i++) {
-                stars[i].className = i < val ? "fa-solid fa-star text-yellow-400 cursor-pointer transition" : "fa-regular fa-star text-gray-300 cursor-pointer transition";
-            }
-        }
-
-        async function submitUserReview(e) {
-            e.preventDefault();
-            const rating = parseInt(document.getElementById('userRatingValue').value);
-            const user = document.getElementById('userNameInput').value;
-            const comment = document.getElementById('userCommentInput').value;
-
-            if(rating === 0) { showToast('الرجاء اختيار عدد النجوم', 'error'); return; }
-
-            const review = { user, rating, comment, date: new Date().toISOString().split('T')[0] };
-            
-            const success = await window.addReviewToFirestore(currentAppIdForReview, review);
-            if(success) {
-                showToast('تم إضافة تقييمك!');
-                closeModal('review');
-                e.target.reset();
-                setRating(0);
-            } else {
-                showToast('فشل إضافة التقييم', 'error');
-            }
-        }
-
-        // --- FAKE REVIEWS ---
-        function toggleFakeReviewForm() { document.getElementById('fakeReviewForm').classList.toggle('hidden'); }
-        function addTempReview() {
-            const user = document.getElementById('fakeUser').value;
-            const rating = parseInt(document.getElementById('fakeRating').value);
-            const comment = document.getElementById('fakeComment').value;
-            if(!user || !comment) return;
-            tempReviews.push({ user, rating, comment, date: new Date().toISOString().split('T')[0] });
-            renderTempReviews();
-            document.getElementById('fakeUser').value = '';
-            document.getElementById('fakeComment').value = '';
-        }
-        function renderTempReviews() {
-            const container = document.getElementById('tempReviewsList');
-            container.innerHTML = tempReviews.map((r, idx) => `
-                <div class="flex justify-between items-center bg-white border p-2 rounded text-xs">
-                    <span>${r.user} (${r.rating}★)</span>
-                    <button type="button" onclick="removeTempReview(${idx})" class="text-red-500 px-2">x</button>
-                </div>
-            `).join('');
-        }
-        function removeTempReview(idx) { tempReviews.splice(idx, 1); renderTempReviews(); }
-
-        // --- UTILS ---
-        async function deleteItem(id) {
-            if(confirm('هل أنت متأكد؟')) {
-                await window.deleteAppFromFirestore(id);
-                showToast('تم الحذف');
-            }
-        }
-
-        function showToast(msg, type='success') {
-            const toast = document.createElement('div');
-            toast.className = `bg-gray-800 text-white px-6 py-3 rounded-full shadow-lg text-sm font-medium animate-slide-up`;
-            if(type === 'error') toast.className = toast.className.replace('bg-gray-800', 'bg-red-600');
-            toast.innerText = msg;
-            document.getElementById('toastContainer').appendChild(toast);
-            setTimeout(() => toast.remove(), 3000);
-        }
-
-        function openModal(name) {
-            document.getElementById(name + 'Modal').classList.remove('hidden');
-            if(name === 'settings') checkLoginState();
-        }
-        function closeModal(name) { document.getElementById(name + 'Modal').classList.add('hidden'); }
-
-        function setFormType(type) {
-            formType = type;
-            document.getElementById('btnTypeApp').className = type === 'app' ? 'flex-1 py-2 rounded-md text-sm font-bold shadow-sm bg-white text-play-green transition' : 'flex-1 py-2 rounded-md text-sm font-medium text-gray-500 transition';
-            document.getElementById('btnTypeMovie').className = type === 'movie' ? 'flex-1 py-2 rounded-md text-sm font-bold shadow-sm bg-white text-play-green transition' : 'flex-1 py-2 rounded-md text-sm font-medium text-gray-500 transition';
-            document.getElementById('fieldUrl').className = type === 'movie' ? 'block' : 'hidden';
-            document.getElementById('lblDev').innerText = type === 'movie' ? 'النوع' : 'المطور';
-        }
-
-        function handleFilePreview(input) {
-            if (input.files && input.files[0]) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    const img = document.getElementById('previewIcon');
-                    img.src = e.target.result;
-                    img.classList.remove('hidden');
-                    document.getElementById('iconPlaceholder').classList.add('hidden');
-                };
-                reader.readAsDataURL(input.files[0]);
-            }
-        }
-
-        function handleLogin(e) {
-            e.preventDefault();
-            if(document.getElementById('loginPhone').value === AUTH_CREDS.phone && document.getElementById('loginPin').value === AUTH_CREDS.pin) {
-                isAdmin = true;
-                showToast('تم تسجيل الدخول');
-                checkLoginState();
-                renderGrid();
-            } else {
-                showToast('بيانات خطأ', 'error');
-            }
-        }
-
-        function handleLogout() {
-            isAdmin = false;
-            showToast('تم الخروج');
-            checkLoginState();
-            renderGrid();
-        }
-
-        function checkLoginState() {
-            const vLogin = document.getElementById('viewLogin');
-            const vAdmin = document.getElementById('viewAdmin');
-            const btnAdd = document.getElementById('addAppBtn');
-            const avatar = document.getElementById('userAvatar');
-            if(isAdmin) {
-                vLogin.classList.add('hidden'); vAdmin.classList.remove('hidden');
-                btnAdd.classList.remove('hidden'); btnAdd.classList.add('flex');
-                avatar.classList.add('bg-play-green', 'text-white');
-            } else {
-                vLogin.classList.remove('hidden'); vAdmin.classList.add('hidden');
-                btnAdd.classList.add('hidden'); btnAdd.classList.remove('flex');
-                avatar.classList.remove('bg-play-green', 'text-white');
-            }
-        }
-
-        function filterCategory(cat, el) {
-            currentFilter = cat;
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active', 'bg-blue-50', 'text-play-green'));
-            if(el) el.classList.add('active');
-            renderGrid();
-            if(window.innerWidth < 768) toggleSidebar();
-        }
-
-        function toggleSidebar() {
-            const sb = document.getElementById('sidebar');
-            const ov = document.getElementById('sidebarOverlay');
-            if(sb.classList.contains('translate-x-full')) {
-                sb.classList.remove('translate-x-full'); ov.classList.remove('hidden');
-                setTimeout(() => ov.classList.remove('opacity-0'), 10);
-            } else {
-                sb.classList.add('translate-x-full'); ov.classList.add('opacity-0');
-                setTimeout(() => ov.classList.add('hidden'), 300);
-            }
-        }
-
-        function simulateInstall(name) { showToast(`جارِ التحميل: ${name}...`); }
-        function openPlayer(url) {
-            document.getElementById('playerOverlay').classList.remove('hidden');
-            const container = document.getElementById('videoContainer');
-            if(url.match(/\.(mp4|webm)$/i)) container.innerHTML = `<video controls autoplay class="w-full h-full"><source src="${url}"></video>`;
-            else container.innerHTML = `<iframe src="${url}" class="w-full h-full border-0" allowfullscreen></iframe>`;
-        }
-        function closePlayer() {
-            document.getElementById('playerOverlay').classList.add('hidden');
-            document.getElementById('videoContainer').innerHTML = '';
-        }
-
-        document.getElementById('searchInput').addEventListener('input', renderGrid);
-        document.getElementById('mobileSearchInput').addEventListener('input', renderGrid);
-
-    </script>
 </body>
 </html>
 
