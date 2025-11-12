@@ -3,833 +3,776 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تطبيقاتي - Apps Gallery</title>
-    
+    <title>تطبيقاتي</title>
+    <!-- PWA Manifest -->
     <link rel="manifest" href="manifest.json">
+    <!-- Favicon -->
+    <link rel="icon" href="https://raw.githubusercontent.com/iqsd2020-ctrl/All_in_one/refs/heads/main/app-drawer.png">
     
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black">
-    <meta name="apple-mobile-web-app-title" content="تطبيقاتي">
-    <link rel="apple-touch-icon" href="https://raw.githubusercontent.com/iqsd2020-ctrl/All_in_one/main/app-drawer.png">
+    <!-- Libraries -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <style>
-        :root {
-            /* -- NEUMORPHISM / SOFT UI THEME --
-              تم تغيير المظهر بالكامل إلى تصميم ناعم (Neumorphism)
-            */
-            --primary-bg: #e0e5ec; /* خلفية فاتحة ناعمة */
-            --text-color: #33373d; /* لون نص داكن وهادئ */
-            --accent-color: #0984e3; /* لون تمييز أزرق هادئ */
-            
-            /* ألوان الظلال للتصميم الناعم */
-            --light-shadow: #ffffff;
-            --dark-shadow: #a3b1c6;
-            
-            /* أنماط الظلال الرئيسية */
-            --inset-shadow: inset 6px 6px 12px var(--dark-shadow), inset -6px -6px 12px var(--light-shadow);
-            --outset-shadow: 6px 6px 12px var(--dark-shadow), -6px -6px 12px var(--light-shadow);
-            --outset-shadow-large: 12px 12px 24px var(--dark-shadow), -12px -12px 24px var(--light-shadow);
-
-            --border-radius: 22px; /* زوايا دائرية جداً */
-            --transition: all 0.2s ease-in-out;
-            
-            /* تعديل اللون الذهبي ليتناسب مع التصميم */
-            --gold-color: #b8930c;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        body {
-            background-color: var(--primary-bg);
-            color: var(--text-color);
-            min-height: 100vh;
-            padding: 20px;
-            line-height: 1.6;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center; /* توسيط عمودي */
-        }
-
-        .container {
-            max-width: 480px; /* محاكاة عرض شاشة الهاتف */
-            margin: 0 auto;
-            /* تصميم ناعم للحاوية (بارز) */
-            background: var(--primary-bg);
-            border-radius: 30px;
-            box-shadow: var(--outset-shadow-large);
-            border: none;
-            padding: 20px;
-            flex-shrink: 0;
-        }
-
-        header {
-            text-align: center;
-            margin-bottom: 30px;
-            padding: 10px;
-        }
-
-        h1 {
-            font-size: 2rem;
-            margin-bottom: 10px;
-            /* تم تغيير العنوان ليتناسب مع التصميم الجديد */
-            color: var(--accent-color);
-            text-shadow: 1px 1px 2px var(--light-shadow);
-            background: none;
-            -webkit-background-clip: unset;
-            background-clip: unset;
-        }
-
-        .subtitle {
-            font-size: 1rem;
-            opacity: 0.8;
-        }
-
-        .apps-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 25px 15px; /* row-gap column-gap */
-            justify-items: center;
-        }
-        
-        .app-icon {
-            cursor: pointer;
-            text-align: center;
-            transition: var(--transition);
-            width: 100px; /* عرض الأيقونة */
-            height: 100px; /* ارتفاع ثابت */
-        }
-        
-        /* إزالة تأثير التكبير، استبداله بتأثير الضغط */
-        .app-icon:hover {
-            transform: scale(1.02); /* تأثير بسيط جداً */
-        }
-
-        .app-icon-image-wrapper {
-            /* تصميم ناعم "بارز" لأيقونات التطبيق */
-            background: var(--primary-bg);
-            box-shadow: var(--outset-shadow);
-            border: none;
-            border-radius: var(--border-radius);
-            overflow: hidden;
-            width: 80px;
-            height: 80px;
-            margin: 0 auto 10px auto;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: var(--transition);
-        }
-        
-        /* تأثير "الضغط" عند التمرير */
-        .app-icon:hover .app-icon-image-wrapper {
-            box-shadow: var(--inset-shadow);
-        }
-
-        .app-icon-image {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        
-        .app-icon-title {
-            font-size: 0.85rem;
-            color: var(--text-color);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            text-shadow: none; /* إزالة الظل السابق */
-        }
-
-        .add-app .app-icon-image-wrapper {
-             /* تصميم "غائر" لزر الإضافة */
-            background: var(--primary-bg);
-            box-shadow: var(--inset-shadow);
-            border: none;
-        }
-        
-        .add-app:hover .app-icon-image-wrapper {
-             /* تأثير ضغط أعمق */
-             box-shadow: inset 8px 8px 15px var(--dark-shadow), inset -8px -8px 15px var(--light-shadow);
-        }
-
-        .add-icon {
-            font-size: 2.5rem;
-            color: var(--accent-color);
-            transition: var(--transition);
-        }
-        
-        .add-app:hover .add-icon {
-            transform: scale(1.1);
-        }
-        
-        .app-placeholder {
-            /* تصميم "غائر" للعنصر النائب */
-            background: var(--primary-bg);
-            border: none;
-            box-shadow: var(--inset-shadow);
-            border-radius: var(--border-radius);
-            transition: var(--transition);
-            width: 80px;
-            height: 80px;
-            cursor: pointer;
-        }
-
-        .app-placeholder:hover {
-            /* تأثير ضغط أعمق */
-            box-shadow: inset 8px 8px 15px var(--dark-shadow), inset -8px -8px 15px var(--light-shadow);
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            /* خلفية شبه شفافة بدون ضبابية */
-            background: rgba(0, 0, 0, 0.4);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            backdrop-filter: none; /* إزالة الفلتر الزجاجي */
-        }
-
-        .modal-content {
-            /* تصميم ناعم "بارز" للنافذة المنبثقة */
-            background: var(--primary-bg);
-            box-shadow: var(--outset-shadow-large);
-            border: none;
-            
-            border-radius: var(--border-radius);
-            max-width: 500px;
-            width: 100%;
-            overflow: hidden;
-            max-height: 90vh;
-            animation: modalFadeIn 0.3s ease;
-            display: flex;
-            flex-direction: column;
-        }
-
-        @keyframes modalFadeIn {
-            from { opacity: 0; transform: scale(0.9); }
-            to { opacity: 1; transform: scale(1); }
-        }
-
-        .modal-header {
-            padding: 20px;
-            /* خط فاصل ناعم جداً */
-            border-bottom: 1px solid var(--dark-shadow);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .modal-title {
-            font-size: 1.6rem;
-            color: var(--accent-color);
-        }
-
-        .close-modal {
-            background: none;
-            border: none;
-            color: var(--text-color);
-            font-size: 1.5rem;
-            cursor: pointer;
-            transition: var(--transition);
-        }
-
-        .close-modal:hover {
-            color: var(--accent-color);
-        }
-
-        .modal-body {
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            flex-grow: 1;
-            overflow-y: auto;
-        }
-
-        .modal-image {
-            width: 100%;
-            max-height: 220px;
-            object-fit: contain;
-            border-radius: 8px;
-            /* ظل غائر للصورة */
-            box-shadow: var(--inset-shadow);
-        }
-
-        .modal-description {
-            font-size: 1.0rem;
-            line-height: 1.6;
-        }
-
-        .modal-footer {
-            padding: 20px;
-            border-top: 1px solid var(--dark-shadow);
-            text-align: center;
-            margin-top: auto;
-        }
-        
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-        
-        .form-group label {
-            font-weight: bold;
-            opacity: 0.9;
-            padding-right: 5px;
-        }
-
-        .form-group input, .form-group textarea {
-            width: 100%;
-            padding: 12px;
-            /* تصميم "غائر" لحقول الإدخال */
-            background-color: var(--primary-bg);
-            box-shadow: var(--inset-shadow);
-            border: none; /* إزالة الحدود */
-            border-radius: 8px;
-            color: var(--text-color);
-            font-size: 1rem;
-            transition: var(--transition);
-        }
-
-        .form-group input:focus, .form-group textarea:focus {
-            outline: none;
-            /* عند التركيز، إظهار إطار بلون التمييز لتحسين إمكانية الوصول */
-            box-shadow: 0 0 0 2px var(--accent-color), var(--inset-shadow);
-        }
-
-        /* [جديد] تنسيقات خاصة بمربعات إدخال الـ PIN */
-        .pin-container {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            direction: ltr; /* مهم لترتيب الإدخال من اليسار لليمين */
-            margin-top: 10px;
-        }
-
-        .pin-input {
-            width: 50px;
-            height: 50px;
-            text-align: center;
-            font-size: 1.5rem;
-            font-weight: bold;
-            
-            /* تطبيق تصميم Neumorphism */
-            background-color: var(--primary-bg);
-            box-shadow: var(--inset-shadow);
-            border: none;
-            border-radius: 12px;
-            color: var(--text-color);
-            transition: var(--transition);
-            
-            /* إخفاء الأسهم في حقول الأرقام */
-            -moz-appearance: textfield;
-        }
-        
-        .pin-input::-webkit-inner-spin-button,
-        .pin-input::-webkit-outer-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-        }
-
-        .pin-input:focus {
-            outline: none;
-            /* تأثير التركيز المميز */
-            box-shadow: 0 0 0 2px var(--accent-color), var(--inset-shadow);
-        }
-
-
-        .form-group textarea {
-            resize: vertical;
-            min-height: 100px;
-        }
-
-        .modal-button {
-            display: inline-block;
-            padding: 12px 30px;
-            /* تصميم "بارز" للزر */
-            background: var(--primary-bg);
-            color: var(--text-color);
-            box-shadow: var(--outset-shadow);
-            
-            border: none;
-            border-radius: 30px;
-            text-decoration: none;
-            font-weight: bold;
-            transition: var(--transition);
-            cursor: pointer;
-        }
-
-        .modal-button:hover, .modal-button:active {
-            /* تأثير "الضغط" للزر */
-            box-shadow: var(--inset-shadow);
-            color: var(--accent-color);
-            transform: scale(0.98);
-        }
-
-        .copyright-footer {
-            margin-top: auto; /* دفع لأسفل */
-            padding: 20px;
-            text-align: center;
-            font-size: 0.9rem;
-            color: rgba(0, 0, 0, 0.6);
-            width: 100%; /* جعل التذييل بعرض كامل */
-        }
-
-        .copyright-footer .gold-frame {
-            display: inline-block;
-            padding: 8px 15px;
-            /* تصميم "بارز" للإطار الذهبي */
-            background: var(--primary-bg);
-            color: var(--gold-color);
-            box-shadow: var(--outset-shadow);
-            border: none; /* إزالة الحدود */
-            
-            border-radius: 20px;
-            margin-top: 10px;
-            font-weight: bold;
-            text-shadow: none; /* إزالة التوهج */
-            transition: all 0.3s ease;
-        }
-
-        .copyright-footer .gold-frame:hover {
-            /* تأثير "الضغط" */
-            box-shadow: var(--inset-shadow);
-            transform: none; /* إزالة الحركة العمودية */
-        }
-
-    </style>
-</head>
-<body>
-    <div class="container">
-        <header>
-            <h1>التطبيقات</h1>
-        </header>
-        
-        <div class="apps-grid" id="appsGrid">
-            
-            <div class="app-icon add-app" id="addAppCard">
-                <div class="app-icon-image-wrapper">
-                     <div class="add-icon">+</div>
-                </div>
-            </div>
-
-            <div class="app-placeholder"></div>
-            <div class="app-placeholder"></div>
-            <div class="app-placeholder"></div>
-            <div class="app-placeholder"></div>
-            <div class="app-placeholder"></div>
-            <div class="app-placeholder"></div>
-            <div class="app-placeholder"></div>
-            <div class="app-placeholder"></div>
-            <div class="app-placeholder"></div>
-            <div class="app-placeholder"></div>
-            <div class="app-placeholder"></div>
-            <div class="app-placeholder"></div>
-            <div class="app-placeholder"></div>
-            <div class="app-placeholder"></div>
-            <div class="app-placeholder"></div>
-            <div class="app-placeholder"></div>
-            <div class="app-placeholder"></div>
-            <div class="app-placeholder"></div>
-            <div class="app-placeholder"></div>
-            <div class="app-placeholder"></div>
-            <div class="app-placeholder"></div>
-            <div class="app-placeholder"></div>
-            <div class="app-placeholder"></div>
-            <div class="app-placeholder"></div>
-            <div class="app-placeholder"></div>
-            <div class="app-placeholder"></div>
-            <div class="app-placeholder"></div>
-            <div class="app-placeholder"></div>
-            <div class="app-placeholder"></div>
-            <div class="app-placeholder"></div>
-            <div class="app-placeholder"></div>
-            <div class="app-placeholder"></div>
-            <div class="app-placeholder"></div>
-            
-        </div>
-    </div>
-    
-    <div class="modal" id="appModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 class="modal-title" id="modalAppTitle">اسم التطبيق</h2>
-                <button class="close-modal" data-close-modal="appModal">&times;</button>
-            </div>
-            <div class="modal-body">
-                <img src="" alt="صورة التطبيق" class="modal-image" id="modalAppImage">
-                <p class="modal-description" id="modalAppDescription">وصف التطبيق</p>
-            </div>
-            <div class="modal-footer">
-                <a href="#" class="modal-button" id="modalAppLink">زيارة التطبيق</a>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal" id="addAppModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 class="modal-title">إضافة تطبيق جديد</h2>
-                <button class="close-modal" data-close-modal="addAppModal">&times;</button>
-            </div>
-            <form id="addAppForm">
-                <div class="modal-body">
-                    <div class="form-group">
-                        <label for="newAppTitle">عنوان أيقونة التطبيق</label>
-                        <input type="text" id="newAppTitle" required maxlength="15">
-                    </div>
-                    <div class="form-group">
-                        <label for="newAppLongDesc">وصف كامل (للنافذة المنبثقة)</label>
-                        <textarea id="newAppLongDesc" required></textarea>
-                    </div>
-                     <div class="form-group">
-                        <label for="newAppImage">رابط صورة الأيقونة (e.g., 80x80)</label>
-                        <input type="url" id="newAppImage" placeholder="https://placehold.co/80x80/..." required>
-                    </div>
-                    <div class="form-group">
-                        <label for="newAppModalImage">رابط صورة النافذة المنبثقة (e.g., 800x400)</label>
-                        <input type="url" id="newAppModalImage" placeholder="https://placehold.co/800x400/..." required>
-                    </div>
-                    <div class="form-group">
-                        <label for="newAppLink">رابط زيارة التطبيق</label>
-                        <input type="url" id="newAppLink" placeholder="https://example.com" required>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="submit" class="modal-button">إضافة التطبيق</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- [معدل] نافذة طلب الرقم السري (PIN) -->
-    <div class="modal" id="passwordModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 class="modal-title">الرقم السري (Master Key)</h2>
-                <button class="close-modal" data-close-modal="passwordModal">&times;</button>
-            </div>
-            <form id="passwordForm">
-                <div class="modal-body">
-                    <div class="form-group">
-                        <label for="pin1">الرجاء إدخال الرمز للمتابعة:</label>
-                        <!-- [جديد] حاوية مربعات الـ PIN -->
-                        <div class="pin-container">
-                            <input type="tel" class="pin-input" id="pin1" maxlength="1" required>
-                            <input type="tel" class="pin-input" id="pin2" maxlength="1" required>
-                            <input type="tel" class="pin-input" id="pin3" maxlength="1" required>
-                            <input type="tel" class="pin-input" id="pin4" maxlength="1" required>
-                        </div>
-                        <!-- رسالة الخطأ، مخفية افتراضياً -->
-                        <p id="passwordError" style="color: red; display: none; margin-top: 10px;">الرمز غير صحيح.</p>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="submit" class="modal-button">دخول</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <footer class="copyright-footer">
-        <div class="gold-frame">  MASTER KEY </div>
-    </footer>
-
+    <!-- Firebase Config & Init (Module) -->
     <script type="module">
-        // استيراد الدوال التي نحتاجها
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-        import { getFirestore, collection, getDocs, addDoc, orderBy, query } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+        // استيراد مكتبات فايربيس عبر روابط الويب المباشرة
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, addDoc, deleteDoc, updateDoc, onSnapshot, collection, query, orderBy, increment, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        // --- 1. إعدادات Firebase ---
-        // هذا هو الكائن الخاص بك من مشروع "all-in-one-1c64f"
+        // --- إعدادات مشروعك الخاص (all-in-b0422) ---
         const firebaseConfig = {
-          apiKey: "AIzaSyDSVqs_a4hCv9-JPL_Jos5r2lvVpPgRbHw",
-          authDomain: "all-in-one-1c64f.firebaseapp.com",
-          projectId: "all-in-one-1c64f",
-          storageBucket: "all-in-one-1c64f.firebasestorage.app",
-          messagingSenderId: "794539548289",
-          appId: "1:794539548289:web:4df3f0174bfa062e547780",
-          measurementId: "G-KRG3X02THS"
+            apiKey: "AIzaSyDY1FNxvECtaV_dflCzkRH4pHQi_HQ4fwA",
+            authDomain: "all-in-b0422.firebaseapp.com",
+            projectId: "all-in-b0422",
+            storageBucket: "all-in-b0422.firebasestorage.app",
+            messagingSenderId: "347315641241",
+            appId: "1:347315641241:web:a582acb160c2b603031108",
+            measurementId: "G-W77R09ZTP5"
         };
 
-        // --- 2. تهيئة Firebase ---
+        // تهيئة التطبيق
         const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app); // تفعيل التحليلات كما طلبت
         const db = getFirestore(app);
-        console.log("Firebase Connected!");
+        const auth = getAuth(app);
 
-        // --- 3. جعل الدوال متاحة للكود القديم ---
-        // (حتى يتمكن السكربت التالي من استخدامها)
+        // جعل المتغيرات متاحة للكود الخارجي
         window.db = db;
-        window.fb = {
-            collection,
-            getDocs,
-            addDoc,
-            orderBy,
-            query
+        window.auth = auth;
+        
+        // تسجيل الدخول المجهول (للسماح بالقراءة والكتابة)
+        signInAnonymously(auth).then(() => {
+            console.log("تم الاتصال بمشروع all-in-b0422 بنجاح!");
+            initVisitorCounter(db);
+            initAppsListener(db);
+            document.getElementById('loadingState').classList.add('hidden'); // إخفاء شاشة التحميل عند النجاح
+        }).catch((error) => {
+            console.error("خطأ في الاتصال:", error);
+            alert("تنبيه: لم يتم تفعيل تسجيل الدخول Anonymous في لوحة تحكم فايربيس.");
+        });
+
+        // --- دوال قاعدة البيانات (نفس المنطق السابق) ---
+
+        // 1. عداد الزوار
+        function initVisitorCounter(db) {
+            const statsRef = doc(db, "system", "stats");
+            updateDoc(statsRef, { visitors: increment(1) }).catch(async (err) => {
+                if (err.code === 'not-found') {
+                    await setDoc(statsRef, { visitors: 1 });
+                } else if (err.code === 'permission-denied') {
+                    console.warn("تنبيه: تحتاج لتعديل قواعد الأمان (Rules) في Firestore.");
+                }
+            });
+
+            onSnapshot(statsRef, (doc) => {
+                if (doc.exists()) {
+                    const count = doc.data().visitors || 0;
+                    const el = document.getElementById('visitorCount');
+                    if(el) el.innerText = count.toLocaleString('en-US');
+                }
+            }, (error) => console.log("انتظار تفعيل القواعد..."));
+        }
+
+        // 2. جلب التطبيقات
+        function initAppsListener(db) {
+            const q = query(collection(db, "apps"), orderBy("createdAt", "desc"));
+            
+            onSnapshot(q, (snapshot) => {
+                const apps = [];
+                snapshot.forEach((doc) => {
+                    apps.push({ id: doc.id, ...doc.data() });
+                });
+                window.appData = apps;
+                window.dispatchEvent(new CustomEvent('apps-updated'));
+            }, (error) => {
+                console.error("فشل جلب البيانات: تأكد من إنشاء قاعدة البيانات في الكونسول", error);
+                document.getElementById('emptyState').style.display = 'flex';
+                document.getElementById('emptyState').querySelector('p').innerText = "يرجى إنشاء قاعدة البيانات Firestore";
+            });
+        }
+
+        // --- دوال الإضافة والحذف (Public API) ---
+
+        window.addAppToFirestore = async (appData) => {
+            try {
+                await addDoc(collection(db, "apps"), {
+                    ...appData,
+                    createdAt: serverTimestamp(),
+                    reviews: appData.reviews || [] 
+                });
+                return true;
+            } catch (e) {
+                console.error("Error adding app: ", e);
+                alert("فشل النشر: تأكد من قواعد الأمان (Rules)");
+                return false;
+            }
         };
 
+        window.deleteAppFromFirestore = async (id) => {
+            try {
+                await deleteDoc(doc(db, "apps", id));
+                return true;
+            } catch (e) {
+                console.error("Error deleting app: ", e);
+                return false;
+            }
+        };
+
+        window.addReviewToFirestore = async (appId, review) => {
+            try {
+                const appRef = doc(db, "apps", appId);
+                const appDoc = await getDoc(appRef);
+                if(appDoc.exists()) {
+                    const currentReviews = appDoc.data().reviews || [];
+                    await updateDoc(appRef, { reviews: [review, ...currentReviews] });
+                    return true;
+                }
+            } catch(e) {
+                console.error("Error adding review: ", e);
+                return false;
+            }
+        };
     </script>
     
-    <script>
-        // App Data Store
-        // هذا الكائن سيتم ملؤه الآن من قاعدة بيانات Firebase
-        let appsData = {};
-        let nextAppNumber = 1; // متغير لتتبع ترقيم التطبيقات
+    <!-- CSS Styles -->
+    <style>
+        body { font-family: 'Tajawal', sans-serif; background-color: #ffffff; color: #202124; overflow: hidden; }
+        .text-play-green { color: #01875f; }
+        .bg-play-green { background-color: #01875f; }
+        .hover-play-green:hover { background-color: #016f4e; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #dadce0; border-radius: 3px; }
+        .app-card { transition: transform 0.2s, box-shadow 0.2s; }
+        .app-card:hover { box-shadow: 0 4px 6px rgba(0,0,0,0.1); transform: translateY(-2px); }
+        .nav-item.active { color: #01875f; background-color: #e8f0fe; }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .animate-slide-up { animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .page-overlay { transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s; transform: translateY(100%); opacity: 0; pointer-events: none; }
+        .page-overlay.active { transform: translateY(0); opacity: 1; pointer-events: auto; }
+    </style>
+</head>
+<body class="flex flex-col h-screen">
 
-        // --- DOM Elements ---
-        const appsGrid = document.getElementById('appsGrid');
-        
-        // Details Modal
-        const detailsModal = document.getElementById('appModal');
-        const modalTitle = document.getElementById('modalAppTitle');
-        const modalImage = document.getElementById('modalAppImage');
-        const modalDescription = document.getElementById('modalAppDescription');
-        const modalLink = document.getElementById('modalAppLink');
-        
-        // Add App Modal
-        const addAppCard = document.getElementById('addAppCard');
-        const addAppModal = document.getElementById('addAppModal');
-        const addAppForm = document.getElementById('addAppForm');
+    <!-- Sidebar Overlay -->
+    <div id="sidebarOverlay" onclick="toggleSidebar()" class="fixed inset-0 bg-black/50 z-40 hidden transition-opacity opacity-0"></div>
 
-        // [معدل] عناصر نافذة الرقم السري (PIN)
-        const passwordModal = document.getElementById('passwordModal');
-        const passwordForm = document.getElementById('passwordForm');
-        const pinInputs = document.querySelectorAll('.pin-input'); // جلب جميع المربعات
-        const passwordError = document.getElementById('passwordError');
-        
-        // --- Functions ---
-        
-        function openDetailsModal(appId) {
-            if (appId && appsData[appId]) {
-                const app = appsData[appId];
-                modalTitle.textContent = app.title;
-                modalImage.src = app.modalImage;
-                modalImage.alt = app.title;
-                modalDescription.textContent = app.longDescription;
-                modalLink.href = app.link;
-                detailsModal.style.display = 'flex';
-            }
-        }
-        
-        function createAppIcon(appId, appData, appNumber) {
-            const icon = document.createElement('div');
-            icon.className = 'app-icon';
-            icon.dataset.appId = appId;
+    <!-- Header -->
+    <header class="bg-white h-16 flex items-center px-4 justify-between shadow-sm z-30 border-b border-gray-200 shrink-0 relative">
+        <div class="flex items-center gap-3 w-full md:w-auto">
+            <button class="md:hidden text-gray-500 p-2 rounded-full hover:bg-gray-100 transition" onclick="toggleSidebar()">
+                <i class="fa-solid fa-bars text-lg"></i>
+            </button>
             
-            const displayTitle = `${appNumber}: ${appData.title}`;
-            
-            icon.innerHTML = `
-                <div class="app-icon-image-wrapper">
-                    <img src="${appData.image}" alt="أيقونة ${appData.title}" class="app-icon-image">
+            <div class="flex items-center gap-3 cursor-pointer select-none" onclick="location.reload()">
+                <img src="https://raw.githubusercontent.com/iqsd2020-ctrl/All_in_one/refs/heads/main/app-drawer.png" class="w-8 h-8 object-contain" alt="Logo">
+                <span class="text-xl font-bold text-gray-600 hidden sm:block tracking-tight">تطبيقاتي</span>
+            </div>
+
+            <!-- Desktop Search -->
+            <div class="hidden md:block flex-grow max-w-xl mx-6">
+                <div class="relative group">
+                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-gray-400 group-focus-within:text-play-green transition-colors">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </div>
+                    <input type="text" id="searchInput" class="w-full bg-gray-100 text-gray-700 rounded-lg py-2.5 pr-10 pl-4 focus:outline-none focus:bg-white focus:shadow-md transition-all placeholder-gray-500" placeholder="البحث في التطبيقات والألعاب...">
                 </div>
-                <h3 class="app-icon-title">${displayTitle}</h3>
+            </div>
+        </div>
+
+        <!-- Header Actions -->
+        <div class="flex items-center gap-2 sm:gap-4">
+            <!-- Visitor Count -->
+            <div class="flex flex-col items-end text-xs text-gray-500 leading-tight bg-gray-50 px-3 py-1 rounded-md border border-gray-100">
+                <span class="flex items-center gap-1"><i class="fa-solid fa-eye text-play-green"></i> الزوار</span>
+                <b id="visitorCount" class="text-gray-800 text-sm">...</b>
+            </div>
+
+            <!-- Admin Button -->
+            <button id="addAppBtn" onclick="openModal('add')" class="hidden bg-play-green hover:bg-[#016f4e] text-white px-4 py-2 rounded-lg text-sm font-bold transition shadow-sm items-center gap-2 active:scale-95">
+                <i class="fa-solid fa-plus"></i> <span class="hidden sm:inline">نشر</span>
+            </button>
+
+            <!-- Profile -->
+            <div id="userAvatar" onclick="openModal('settings')" class="w-9 h-9 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-500 flex items-center justify-center text-sm cursor-pointer transition shadow-sm border border-white ring-2 ring-transparent hover:ring-gray-200">
+                <i class="fa-solid fa-user"></i>
+            </div>
+        </div>
+    </header>
+
+    <!-- Mobile Search -->
+    <div class="md:hidden p-3 bg-white border-b border-gray-100 shrink-0 z-20">
+        <div class="relative">
+            <input type="text" id="mobileSearchInput" class="w-full bg-gray-100 rounded-lg px-4 py-2 pr-10 focus:outline-none focus:ring-1 focus:ring-play-green placeholder-gray-500 text-sm" placeholder="البحث...">
+            <i class="fa-solid fa-magnifying-glass absolute right-3 top-2.5 text-gray-400 text-sm"></i>
+        </div>
+    </div>
+
+    <!-- Main Layout -->
+    <div class="flex flex-1 overflow-hidden relative">
+        <!-- Sidebar -->
+        <aside id="sidebar" class="fixed inset-y-0 right-0 z-50 w-72 bg-white transform translate-x-full md:translate-x-0 md:static md:w-64 md:block border-l border-gray-200 overflow-y-auto transition-transform duration-300 ease-in-out shadow-2xl md:shadow-none flex flex-col">
+            <div class="flex items-center justify-between p-4 border-b md:hidden">
+                <span class="font-bold text-gray-700">القائمة</span>
+                <button onclick="toggleSidebar()" class="text-gray-500 p-2"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+            <div class="py-4 px-2 space-y-1">
+                <button onclick="filterCategory('all', this)" class="nav-item active w-full flex items-center px-4 py-3 text-sm font-bold rounded-full transition-colors">
+                    <i class="fa-solid fa-layer-group w-8 text-lg ml-2"></i> الكل
+                </button>
+                <button onclick="filterCategory('apps', this)" class="nav-item w-full flex items-center px-4 py-3 text-sm font-medium rounded-full text-gray-600 transition-colors">
+                    <i class="fa-solid fa-mobile-screen w-8 text-lg ml-2"></i> التطبيقات
+                </button>
+                <button onclick="filterCategory('movies', this)" class="nav-item w-full flex items-center px-4 py-3 text-sm font-medium rounded-full text-gray-600 transition-colors">
+                    <i class="fa-solid fa-clapperboard w-8 text-lg ml-2"></i> الأفلام
+                </button>
+                <div class="border-t my-3 mx-4"></div>
+                <button onclick="openModal('settings')" class="nav-item w-full flex items-center px-4 py-3 text-sm font-medium rounded-full text-gray-600 transition-colors">
+                    <i class="fa-solid fa-shield-halved w-8 text-lg ml-2"></i> منطقة المسؤول
+                </button>
+            </div>
+        </aside>
+
+        <!-- Content -->
+        <main class="flex-1 overflow-y-auto p-4 md:p-6 bg-white scroll-smooth w-full relative">
+            <div class="flex items-center justify-between mb-4">
+                <h2 id="sectionTitle" class="text-lg font-bold text-gray-800">المحتوى المقترح</h2>
+            </div>
+
+            <!-- Loader -->
+            <div id="loadingState" class="flex flex-col items-center justify-center py-20">
+                <i class="fa-solid fa-circle-notch fa-spin text-play-green text-4xl mb-4"></i>
+                <p class="text-gray-400 text-sm">جاري الاتصال بـ all-in-b0422...</p>
+            </div>
+
+            <!-- Grid -->
+            <div id="appsGrid" class="hidden grid grid-cols-3 min-[500px]:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 gap-3 md:gap-6 pb-20"></div>
+
+            <!-- Empty State -->
+            <div id="emptyState" class="hidden flex-col items-center justify-center py-24 text-center opacity-60">
+                <i class="fa-regular fa-folder-open text-6xl text-gray-300 mb-4"></i>
+                <p class="text-gray-500 font-medium">لا توجد تطبيقات بعد</p>
+            </div>
+        </main>
+    </div>
+
+    <!-- ================= MODALS ================= -->
+
+    <!-- Details Page -->
+    <div id="appDetailsPage" class="fixed inset-0 z-50 bg-white page-overlay overflow-y-auto flex flex-col">
+        <div class="sticky top-0 bg-white/95 backdrop-blur-md flex items-center justify-between px-4 py-3 border-b border-gray-100 z-20 shadow-sm">
+            <button onclick="closeAppDetails()" class="text-gray-600 hover:bg-gray-100 p-2 rounded-full transition"><i class="fa-solid fa-arrow-right text-xl"></i></button>
+            <div class="font-bold text-gray-800 text-sm truncate max-w-[200px]" id="detailHeaderTitle">تفاصيل</div>
+            <div class="w-8"></div>
+        </div>
+        <div id="detailsContent" class="p-5 md:p-8 max-w-4xl mx-auto w-full animate-slide-up pb-20"></div>
+    </div>
+
+    <!-- Add Content Modal -->
+    <div id="addModal" class="fixed inset-0 z-[60] hidden" role="dialog">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeModal('add')"></div>
+        <div class="absolute inset-0 flex items-center justify-center p-4 pointer-events-none">
+            <div class="bg-white w-full max-w-lg rounded-2xl shadow-2xl flex flex-col max-h-[90vh] pointer-events-auto overflow-hidden animate-slide-up">
+                <div class="px-6 py-4 border-b flex justify-between items-center bg-gray-50">
+                    <h3 class="font-bold text-gray-800">نشر محتوى جديد</h3>
+                    <button onclick="closeModal('add')" class="text-gray-400 hover:text-red-500"><i class="fa-solid fa-xmark text-xl"></i></button>
+                </div>
+                <div class="overflow-y-auto p-6">
+                    <form id="addAppForm" onsubmit="handleFormSubmit(event)" class="space-y-4">
+                        <div class="flex p-1 bg-gray-100 rounded-lg">
+                            <button type="button" onclick="setFormType('app')" id="btnTypeApp" class="flex-1 py-2 rounded-md text-sm font-bold shadow-sm bg-white text-play-green transition">تطبيق</button>
+                            <button type="button" onclick="setFormType('movie')" id="btnTypeMovie" class="flex-1 py-2 rounded-md text-sm font-medium text-gray-500 transition">فيلم</button>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="col-span-2"><label class="block text-xs font-bold text-gray-700 mb-1">الاسم</label><input type="text" id="inputName" required class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:border-play-green focus:ring-1"></div>
+                            <div class="col-span-2"><label class="block text-xs font-bold text-gray-700 mb-1" id="lblDev">المطور</label><input type="text" id="inputDev" required class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:border-play-green focus:ring-1"></div>
+                        </div>
+                        <div><label class="block text-xs font-bold text-gray-700 mb-1">الوصف</label><textarea id="inputDesc" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:border-play-green focus:ring-1 h-24 resize-none"></textarea></div>
+                        <div class="grid grid-cols-1 gap-4">
+                            <div id="fieldUrl" class="hidden"><label class="block text-xs font-bold text-gray-700 mb-1">رابط الفيديو</label><input type="url" id="inputUrl" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none text-left" dir="ltr"></div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 mb-1">الأيقونة</label>
+                                <div class="flex gap-3 items-center">
+                                    <div class="w-16 h-16 rounded-xl bg-gray-100 border border-dashed border-gray-300 flex items-center justify-center overflow-hidden relative hover:border-play-green cursor-pointer">
+                                        <img id="previewIcon" class="w-full h-full object-cover hidden">
+                                        <i class="fa-solid fa-camera text-gray-400" id="iconPlaceholder"></i>
+                                        <input type="file" id="inputFile" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer" onchange="handleFilePreview(this)">
+                                    </div>
+                                    <div class="text-xs text-gray-500">اضغط لرفع صورة</div>
+                                </div>
+                            </div>
+                            <div class="border-t pt-4 mt-2">
+                                <div class="flex justify-between items-center mb-2"><label class="block text-xs font-bold text-gray-700">تعليقات وهمية (اختياري)</label><button type="button" onclick="toggleFakeReviewForm()" class="text-xs text-play-green font-bold hover:underline">+ إضافة</button></div>
+                                <div id="fakeReviewForm" class="hidden bg-gray-50 p-3 rounded-lg border border-gray-200 mb-3 space-y-2">
+                                    <input type="text" id="fakeUser" placeholder="اسم المستخدم" class="w-full text-xs border p-2 rounded">
+                                    <select id="fakeRating" class="w-full text-xs border p-2 rounded"><option value="5">5 نجوم</option><option value="4">4 نجوم</option><option value="3">3 نجوم</option></select>
+                                    <input type="text" id="fakeComment" placeholder="التعليق..." class="w-full text-xs border p-2 rounded">
+                                    <button type="button" onclick="addTempReview()" class="w-full bg-gray-800 text-white py-1.5 rounded text-xs">إدراج</button>
+                                </div>
+                                <div id="tempReviewsList" class="space-y-1 max-h-32 overflow-y-auto"></div>
+                            </div>
+                        </div>
+                        <div class="pt-4 border-t flex justify-end gap-3">
+                            <button type="button" onclick="closeModal('add')" class="px-4 py-2 text-sm font-bold text-gray-600 hover:bg-gray-100 rounded-lg">إلغاء</button>
+                            <button type="submit" id="submitBtn" class="px-6 py-2 text-sm font-bold text-white bg-play-green hover:bg-[#016f4e] rounded-lg shadow-md">نشر الآن</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="fixed inset-0 z-[70] hidden" role="dialog">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closeModal('settings')"></div>
+        <div class="absolute inset-0 flex items-center justify-center p-4 pointer-events-none">
+            <div class="bg-white w-full max-w-sm rounded-2xl shadow-2xl p-6 pointer-events-auto animate-slide-up text-center">
+                <div id="viewLogin">
+                    <div class="w-14 h-14 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-500"><i class="fa-solid fa-lock text-2xl"></i></div>
+                    <h3 class="font-bold text-lg mb-1">لوحة المسؤول</h3>
+                    <form onsubmit="handleLogin(event)" class="space-y-3 mt-4">
+                        <input type="tel" id="loginPhone" placeholder="رقم الهاتف" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-2.5 text-sm text-left outline-none focus:border-play-green" dir="ltr">
+                        <input type="password" id="loginPin" placeholder="PIN" class="w-full bg-gray-50 border border-gray-200 rounded-lg px-4 py-2.5 text-sm text-center tracking-widest outline-none focus:border-play-green" maxlength="4">
+                        <button type="submit" class="w-full bg-play-green text-white py-2.5 rounded-lg font-bold text-sm hover:bg-[#016f4e] transition">دخول</button>
+                    </form>
+                </div>
+                <div id="viewAdmin" class="hidden">
+                    <div class="w-14 h-14 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4 text-play-green"><i class="fa-solid fa-user-check text-2xl"></i></div>
+                    <h3 class="font-bold text-lg mb-2">مرحباً بك</h3>
+                    <p class="text-sm text-gray-600 mb-6">أنت الآن في وضع المسؤول</p>
+                    <button onclick="handleLogout()" class="w-full border border-red-500 text-red-500 py-2 rounded-lg font-bold text-sm hover:bg-red-50 transition">تسجيل الخروج</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Review Modal -->
+    <div id="reviewModal" class="fixed inset-0 z-[80] hidden" role="dialog">
+        <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" onclick="closeModal('review')"></div>
+        <div class="absolute bottom-0 md:inset-0 md:flex md:items-center md:justify-center p-0 md:p-4 pointer-events-none">
+            <div class="bg-white w-full md:w-[400px] rounded-t-2xl md:rounded-2xl shadow-2xl p-6 pointer-events-auto animate-slide-up">
+                <h3 class="font-bold text-lg mb-4">أضف تقييمك</h3>
+                <form onsubmit="submitUserReview(event)" class="space-y-4">
+                    <div class="flex justify-center gap-2 text-2xl text-gray-300 mb-4" id="starContainer">
+                        <i class="fa-solid fa-star hover:text-yellow-400 transition cursor-pointer" onclick="setRating(1)"></i>
+                        <i class="fa-solid fa-star hover:text-yellow-400 transition cursor-pointer" onclick="setRating(2)"></i>
+                        <i class="fa-solid fa-star hover:text-yellow-400 transition cursor-pointer" onclick="setRating(3)"></i>
+                        <i class="fa-solid fa-star hover:text-yellow-400 transition cursor-pointer" onclick="setRating(4)"></i>
+                        <i class="fa-solid fa-star hover:text-yellow-400 transition cursor-pointer" onclick="setRating(5)"></i>
+                    </div>
+                    <input type="hidden" id="userRatingValue" value="0">
+                    <input type="text" id="userNameInput" required placeholder="اسمك" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none">
+                    <textarea id="userCommentInput" required placeholder="رأيك..." class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none h-20 resize-none"></textarea>
+                    <button type="submit" class="w-full bg-play-green text-white py-2.5 rounded-lg font-bold text-sm hover:bg-[#016f4e]">نشر التقييم</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Video Player -->
+    <div id="playerOverlay" class="fixed inset-0 z-[100] bg-black hidden flex items-center justify-center">
+        <button onclick="closePlayer()" class="absolute top-5 right-5 text-white/80 hover:text-white bg-white/10 rounded-full p-3 transition z-10"><i class="fa-solid fa-xmark text-2xl"></i></button>
+        <div class="w-full max-w-6xl aspect-video bg-black shadow-2xl" id="videoContainer"></div>
+    </div>
+
+    <!-- Toasts -->
+    <div id="toastContainer" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-[110] flex flex-col gap-2 items-center w-full px-4 pointer-events-none"></div>
+
+    <script>
+        // --- CONFIG ---
+        const AUTH_CREDS = { phone: "07828937302", pin: "1420" };
+        let isAdmin = false;
+        let currentFilter = 'all';
+        let formType = 'app';
+        let tempReviews = []; 
+        let currentAppIdForReview = null;
+
+        // Listen for Firestore updates
+        window.addEventListener('apps-updated', () => {
+            document.getElementById('loadingState').classList.add('hidden');
+            renderGrid();
+        });
+
+        // --- CORE FUNCTIONS ---
+        function getAverageRating(reviews) {
+            if (!reviews || reviews.length === 0) return 0;
+            const sum = reviews.reduce((a, b) => a + b.rating, 0);
+            return (sum / reviews.length).toFixed(1);
+        }
+
+        function renderGrid() {
+            const grid = document.getElementById('appsGrid');
+            const queryStr = document.getElementById('searchInput').value.toLowerCase() || document.getElementById('mobileSearchInput').value.toLowerCase();
+            const items = window.appData || [];
+
+            const filtered = items.filter(item => {
+                const matchesSearch = item.name.toLowerCase().includes(queryStr) || item.dev.toLowerCase().includes(queryStr);
+                const matchesType = currentFilter === 'all' ? true : 
+                                    currentFilter === 'apps' ? item.type === 'app' : 
+                                    currentFilter === 'movies' ? item.type === 'movie' : true;
+                return matchesSearch && matchesType;
+            });
+
+            if (!window.appData) return; 
+
+            document.getElementById('emptyState').style.display = filtered.length ? 'none' : 'flex';
+            grid.classList.remove('hidden');
+            grid.innerHTML = '';
+
+            filtered.forEach(item => {
+                const rating = getAverageRating(item.reviews);
+                const isImage = !item.icon.startsWith('fa-');
+                
+                const iconEl = isImage 
+                    ? `<img src="${item.icon}" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">`
+                    : `<div class="w-full h-full flex items-center justify-center text-4xl text-white" style="background-color:${item.color}"><i class="${item.icon}"></i></div>`;
+
+                const playOverlay = item.type === 'movie' 
+                    ? `<div class="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition"><i class="fa-solid fa-play text-white text-2xl drop-shadow-lg"></i></div>` 
+                    : '';
+                
+                const div = document.createElement('div');
+                div.className = 'flex flex-col gap-2 cursor-pointer group select-none';
+                div.onclick = (e) => {
+                    if (e.target.closest('.delete-btn')) return;
+                    openDetails(item);
+                };
+
+                div.innerHTML = `
+                    <div class="relative aspect-square rounded-2xl overflow-hidden shadow-sm bg-gray-100 border border-gray-100 app-card">
+                        ${iconEl}
+                        ${playOverlay}
+                        ${isAdmin ? `<button onclick="deleteItem('${item.id}')" class="delete-btn absolute top-1 left-1 w-7 h-7 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 z-20 shadow-md"><i class="fa-solid fa-trash text-xs"></i></button>` : ''}
+                    </div>
+                    <div class="px-1">
+                        <h3 class="text-xs md:text-sm font-bold text-gray-800 line-clamp-2 leading-relaxed group-hover:text-play-green transition-colors">${item.name}</h3>
+                        <div class="flex items-center justify-between mt-1">
+                            <span class="text-[10px] text-gray-500 font-medium">${rating} <i class="fa-solid fa-star text-yellow-400"></i></span>
+                            <span class="text-[10px] text-gray-400">${item.type === 'movie' ? 'فيلم' : 'تطبيق'}</span>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(div);
+            });
+        }
+
+        // --- DETAILS & REVIEWS ---
+        function openDetails(item) {
+            currentAppIdForReview = item.id;
+            const rating = getAverageRating(item.reviews);
+            const isImage = !item.icon.startsWith('fa-');
+            
+            const iconHtml = isImage 
+                ? `<img src="${item.icon}" class="w-28 h-28 md:w-36 md:h-36 rounded-2xl object-cover shadow-lg bg-white">`
+                : `<div class="w-28 h-28 md:w-36 md:h-36 rounded-2xl shadow-lg flex items-center justify-center text-6xl text-white" style="background-color:${item.color}"><i class="${item.icon}"></i></div>`;
+
+            const actionText = item.type === 'movie' ? 'مشاهدة الآن' : 'تثبيت';
+            const actionFn = item.type === 'movie' ? `openPlayer('${item.streamUrl}')` : `simulateInstall('${item.name}')`;
+            const actionIcon = item.type === 'movie' ? 'fa-play' : 'fa-download';
+
+            const reviewsHtml = item.reviews && item.reviews.length > 0 
+                ? item.reviews.map(r => `
+                    <div class="bg-gray-50 p-4 rounded-xl border border-gray-100 mb-3">
+                        <div class="flex justify-between items-start mb-2">
+                            <div class="flex items-center gap-2">
+                                <div class="w-8 h-8 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center font-bold text-xs">${r.user.charAt(0)}</div>
+                                <span class="text-sm font-bold text-gray-800">${r.user}</span>
+                            </div>
+                            <div class="flex text-yellow-400 text-xs gap-0.5">
+                                ${Array(5).fill(0).map((_, i) => `<i class="fa-${i < r.rating ? 'solid' : 'regular'} fa-star"></i>`).join('')}
+                            </div>
+                        </div>
+                        <p class="text-sm text-gray-600 leading-relaxed">${r.comment}</p>
+                    </div>
+                `).join('')
+                : `<div class="text-center py-8 text-gray-400 text-sm">كن أول من يقيم هذا المحتوى</div>`;
+
+            document.getElementById('detailHeaderTitle').textContent = item.name;
+            document.getElementById('detailsContent').innerHTML = `
+                <div class="flex flex-col md:flex-row gap-6 mb-8">
+                    <div class="flex-shrink-0 mx-auto md:mx-0">${iconHtml}</div>
+                    <div class="flex-grow text-center md:text-right pt-2">
+                        <h1 class="text-2xl md:text-4xl font-extrabold text-gray-900 mb-2">${item.name}</h1>
+                        <div class="text-play-green font-bold text-sm mb-4">${item.dev}</div>
+                        
+                        <div class="flex items-center justify-center md:justify-start gap-6 text-sm text-gray-600 mb-6">
+                            <div class="flex flex-col items-center gap-1">
+                                <span class="font-bold text-gray-900">${rating}</span>
+                                <i class="fa-solid fa-star text-xs text-gray-400"></i>
+                            </div>
+                            <div class="w-px h-6 bg-gray-300"></div>
+                            <div class="flex flex-col items-center gap-1">
+                                <span class="font-bold text-gray-900">${item.downloads}</span>
+                                <span class="text-[10px]">تنزيل</span>
+                            </div>
+                            <div class="w-px h-6 bg-gray-300"></div>
+                            <div class="flex flex-col items-center gap-1">
+                                <span class="font-bold text-gray-900">${item.size}</span>
+                                <span class="text-[10px]">الحجم</span>
+                            </div>
+                        </div>
+
+                        <button onclick="${actionFn}" class="w-full md:w-auto bg-play-green hover:bg-[#016f4e] text-white px-8 py-3 rounded-lg font-bold shadow-lg shadow-green-900/10 transition transform active:scale-95 flex items-center justify-center gap-2">
+                            <i class="fa-solid ${actionIcon}"></i> ${actionText}
+                        </button>
+                    </div>
+                </div>
+
+                <div class="mb-8">
+                    <h3 class="font-bold text-lg mb-3 flex items-center gap-2"><i class="fa-solid fa-circle-info text-play-green"></i> الوصف</h3>
+                    <p class="text-gray-600 leading-7 text-sm md:text-base bg-gray-50 p-4 rounded-xl border border-gray-100">${item.desc}</p>
+                </div>
+
+                <div>
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="font-bold text-lg">المراجعات</h3>
+                        <button onclick="openModal('review')" class="text-play-green text-sm font-bold hover:bg-green-50 px-3 py-1 rounded-md transition"><i class="fa-solid fa-pen"></i> تقييم</button>
+                    </div>
+                    <div class="space-y-2 max-h-[400px] overflow-y-auto pr-1">${reviewsHtml}</div>
+                </div>
             `;
-            
-            icon.addEventListener('click', () => openDetailsModal(appId));
-            return icon;
+
+            const page = document.getElementById('appDetailsPage');
+            page.classList.remove('hidden');
+            setTimeout(() => page.classList.add('active'), 10);
+            document.body.style.overflow = 'hidden';
         }
 
-        /**
-         * [الجديد] دالة لتحميل وعرض التطبيقات من Firebase
-         */
-        async function loadAndRenderApps() {
-            // 1. استرجاع الدوال من "window" (التي عرفناها في السكربت السابق)
-            const { collection, query, orderBy, getDocs } = window.fb;
-            const db = window.db;
+        function closeAppDetails() {
+            const page = document.getElementById('appDetailsPage');
+            page.classList.remove('active');
+            setTimeout(() => page.classList.add('hidden'), 300);
+            document.body.style.overflow = '';
+            currentAppIdForReview = null;
+        }
 
-            // 2. إنشاء "استعلام" لجلب التطبيقات، مرتبة حسب الحقل "order"
-            const appsCollectionRef = collection(db, "apps"); // "apps" هو اسم مجموعتنا في Firestore
-            const q = query(appsCollectionRef, orderBy("order")); // نرتبهم حسب الحقل "order"
+        // --- ADDING CONTENT ---
+        async function handleFormSubmit(e) {
+            e.preventDefault();
+            if(!isAdmin) return;
 
-            // 3. تنفيذ الاستعلام
-            const querySnapshot = await getDocs(q);
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = true;
+            btn.innerText = "جاري النشر...";
+
+            const name = document.getElementById('inputName').value;
+            const dev = document.getElementById('inputDev').value;
+            const desc = document.getElementById('inputDesc').value;
+            const url = document.getElementById('inputUrl').value;
             
-            let currentAppNumber = 1;
+            let icon = formType === 'app' ? 'fa-brands fa-android' : 'https://placehold.co/400x600/222/fff?text=Movie';
+            const fileInput = document.getElementById('inputFile');
+            
+            const saveToDb = async (finalIcon) => {
+                const appData = {
+                    type: formType,
+                    name,
+                    dev,
+                    desc,
+                    icon: finalIcon,
+                    color: '#01875f',
+                    size: formType === 'movie' ? 'HD' : (Math.floor(Math.random() * 100) + 20) + ' MB',
+                    downloads: '0',
+                    streamUrl: formType === 'movie' ? url : null,
+                    reviews: [...tempReviews]
+                };
 
-            // 4. المرور على النتائج وعرضها
-            querySnapshot.forEach((doc) => {
-                const appId = doc.id;
-                const appData = doc.data();
-                
-                // 5. إضافة البيانات للكائن المحلي (لنستخدمه في النافذة المنبثقة)
-                appsData[appId] = appData;
+                const success = await window.addAppToFirestore(appData);
+                btn.disabled = false;
+                btn.innerText = "نشر الآن";
 
-                // 6. إنشاء وعرض الأيقونة
-                const iconElement = createAppIcon(appId, appData, currentAppNumber);
-                
-                // إيجاد أول عنصر نائب (placeholder) واستبداله بالأيقونة
-                const placeholderToReplace = document.querySelector('.app-placeholder');
-                if (placeholderToReplace) {
-                    placeholderToReplace.replaceWith(iconElement);
+                if(success) {
+                    showToast('تم النشر بنجاح');
+                    closeModal('add');
+                    e.target.reset();
+                    tempReviews = [];
+                    renderTempReviews();
+                    document.getElementById('previewIcon').classList.add('hidden');
+                    document.getElementById('iconPlaceholder').classList.remove('hidden');
                 } else {
-                    // كحل احتياطي إذا امتلأت العناصر النائبة
-                    appsGrid.insertBefore(iconElement, addAppCard);
+                    showToast('حدث خطأ أثناء النشر', 'error');
                 }
-                
-                currentAppNumber++;
-            });
-            
-            // 7. تحديث رقم التطبيق التالي
-            nextAppNumber = currentAppNumber;
-            console.log(`تم تحميل ${nextAppNumber - 1} تطبيق من Firebase.`);
-        }
-
-
-        // --- Event Listeners ---
-
-        // [معدل] دالة لإظهار نافذة الرقم السري
-        function showPasswordPrompt() {
-            pinInputs.forEach(input => input.value = ''); // مسح أي محاولات سابقة
-            passwordError.style.display = 'none'; // إخفاء رسالة الخطأ
-            passwordModal.style.display = 'flex'; // إظهار النافذة
-            pinInputs[0].focus(); // التركيز على المربع الأول
-        }
-
-        // [معدل] فتح نافذة "الرقم السري" بدلاً من نافذة الإضافة
-        addAppCard.addEventListener('click', showPasswordPrompt);
-
-        // [معدل] فتح نافذة "الرقم السري" عند الضغط على أي عنصر نائب
-        document.querySelectorAll('.app-placeholder').forEach(placeholder => {
-            placeholder.addEventListener('click', showPasswordPrompt);
-        });
-
-        // [جديد] منطق التنقل بين مربعات الـ PIN
-        pinInputs.forEach((input, index) => {
-            input.addEventListener('input', (e) => {
-                // فلترة الإدخال ليقبل الأرقام فقط
-                input.value = input.value.replace(/[^0-9]/g, '');
-                
-                // إذا تم إدخال رقم، انتقل للمربع التالي
-                if (input.value.length === 1 && index < pinInputs.length - 1) {
-                    pinInputs[index + 1].focus();
-                }
-            });
-
-            input.addEventListener('keydown', (e) => {
-                // إذا ضغط Backspace وكان المربع فارغاً، ارجع للمربع السابق
-                if (e.key === 'Backspace' && input.value.length === 0 && index > 0) {
-                    pinInputs[index - 1].focus();
-                }
-            });
-        });
-
-
-        // [معدل] التعامل مع إرسال فورم الرقم السري
-        passwordForm.addEventListener('submit', function(event) {
-            event.preventDefault(); // منع الإرسال التقليدي
-            
-            // [جديد] تجميع الرمز من المربعات
-            let enteredKey = "";
-            pinInputs.forEach(input => {
-                enteredKey += input.value;
-            });
-
-            const correctKey = "1420"; // الرقم السري المطلوب
-
-            if (enteredKey === correctKey) {
-                // صحيح!
-                passwordModal.style.display = 'none'; // إخفاء نافذة الرقم السري
-                addAppModal.style.display = 'flex'; // إظهار نافذة إضافة التطبيق
-            } else {
-                // خطأ!
-                passwordError.style.display = 'block'; // إظهار رسالة الخطأ
-                // [جديد] مسح المربعات والتركيز على الأول
-                pinInputs.forEach(input => input.value = '');
-                pinInputs[0].focus();
-            }
-        });
-
-
-        // [معدل] Handle Add App Form Submission
-        addAppForm.addEventListener('submit', async function(event) {
-            event.preventDefault();
-            
-            // 1. استرجاع دوال Firebase
-            const { collection, addDoc } = window.fb;
-            const db = window.db;
-
-            // 2. تجميع بيانات الفورم
-            const newAppData = {
-                title: document.getElementById('newAppTitle').value,
-                longDescription: document.getElementById('newAppLongDesc').value,
-                image: document.getElementById('newAppImage').value,
-                modalImage: document.getElementById('newAppModalImage').value,
-                link: document.getElementById('newAppLink').value,
-                order: nextAppNumber // [مهم] إضافة حقل الترتيب
             };
+
+            if (fileInput.files && fileInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = (evt) => saveToDb(evt.target.result);
+                reader.readAsDataURL(fileInput.files[0]);
+            } else {
+                saveToDb(icon);
+            }
+        }
+
+        // --- REVIEWS ---
+        function setRating(val) {
+            document.getElementById('userRatingValue').value = val;
+            const stars = document.getElementById('starContainer').children;
+            for(let i=0; i<5; i++) {
+                stars[i].className = i < val ? "fa-solid fa-star text-yellow-400 cursor-pointer transition" : "fa-regular fa-star text-gray-300 cursor-pointer transition";
+            }
+        }
+
+        async function submitUserReview(e) {
+            e.preventDefault();
+            const rating = parseInt(document.getElementById('userRatingValue').value);
+            const user = document.getElementById('userNameInput').value;
+            const comment = document.getElementById('userCommentInput').value;
+
+            if(rating === 0) { showToast('الرجاء اختيار عدد النجوم', 'error'); return; }
+
+            const review = { user, rating, comment, date: new Date().toISOString().split('T')[0] };
             
-            try {
-                // 3. [الخطوة الأهم] حفظ البيانات في Firebase
-                const docRef = await addDoc(collection(db, "apps"), newAppData);
-                
-                console.log("Document written with ID: ", docRef.id);
-                const newId = docRef.id;
-
-                // 4. إضافة التطبيق الجديد محلياً وواجهة المستخدم
-                appsData[newId] = newAppData;
-                
-                const newIcon = createAppIcon(newId, newAppData, nextAppNumber);
-                
-                const placeholderToReplace = document.querySelector('.app-placeholder');
-                if (placeholderToReplace) {
-                    placeholderToReplace.replaceWith(newIcon);
-                } else {
-                    appsGrid.insertBefore(newIcon, addAppCard);
-                }
-                
-                // 5. زيادة العداد
-                nextAppNumber++;
-
-                // 6. إغلاق النافذة وإعادة تعيين الفورم
-                addAppModal.style.display = 'none';
-                this.reset();
-
-            } catch (e) {
-                console.error("Error adding document: ", e);
-                alert("حدث خطأ أثناء حفظ التطبيق. يرجى المحاولة مرة أخرى.");
+            const success = await window.addReviewToFirestore(currentAppIdForReview, review);
+            if(success) {
+                showToast('تم إضافة تقييمك!');
+                closeModal('review');
+                e.target.reset();
+                setRating(0);
+            } else {
+                showToast('فشل إضافة التقييم', 'error');
             }
-        });
+        }
 
-        // Close Modals Logic
-        document.querySelectorAll('.close-modal').forEach(button => {
-            button.addEventListener('click', function() {
-                const modalId = this.getAttribute('data-close-modal');
-                document.getElementById(modalId).style.display = 'none';
-            });
-        });
+        // --- FAKE REVIEWS ---
+        function toggleFakeReviewForm() { document.getElementById('fakeReviewForm').classList.toggle('hidden'); }
+        function addTempReview() {
+            const user = document.getElementById('fakeUser').value;
+            const rating = parseInt(document.getElementById('fakeRating').value);
+            const comment = document.getElementById('fakeComment').value;
+            if(!user || !comment) return;
+            tempReviews.push({ user, rating, comment, date: new Date().toISOString().split('T')[0] });
+            renderTempReviews();
+            document.getElementById('fakeUser').value = '';
+            document.getElementById('fakeComment').value = '';
+        }
+        function renderTempReviews() {
+            const container = document.getElementById('tempReviewsList');
+            container.innerHTML = tempReviews.map((r, idx) => `
+                <div class="flex justify-between items-center bg-white border p-2 rounded text-xs">
+                    <span>${r.user} (${r.rating}★)</span>
+                    <button type="button" onclick="removeTempReview(${idx})" class="text-red-500 px-2">x</button>
+                </div>
+            `).join('');
+        }
+        function removeTempReview(idx) { tempReviews.splice(idx, 1); renderTempReviews(); }
 
-        // Close modal when clicking outside of it
-        window.addEventListener('click', function(event) {
-            if (event.target.classList.contains('modal')) {
-                event.target.style.display = 'none';
+        // --- UTILS ---
+        async function deleteItem(id) {
+            if(confirm('هل أنت متأكد؟')) {
+                await window.deleteAppFromFirestore(id);
+                showToast('تم الحذف');
             }
-        });
+        }
 
-        // --- [جديد] تشغيل كل شيء ---
-        // عند تحميل الصفحة، انتظر حتى يتم تحميل كل شيء ثم ابدأ بتحميل التطبيقات
-        window.addEventListener('DOMContentLoaded', () => {
-            // نحتاج للانتظار قليلاً للتأكد من أن سكربت Firebase قد تم تحميله
-            setTimeout(() => {
-                if (window.db && window.fb) {
-                    loadAndRenderApps();
-                } else {
-                    console.error("Firebase is not initialized yet!");
-                }
-            }, 500); // 0.5 ثانية انتظار
-        });
+        function showToast(msg, type='success') {
+            const toast = document.createElement('div');
+            toast.className = `bg-gray-800 text-white px-6 py-3 rounded-full shadow-lg text-sm font-medium animate-slide-up`;
+            if(type === 'error') toast.className = toast.className.replace('bg-gray-800', 'bg-red-600');
+            toast.innerText = msg;
+            document.getElementById('toastContainer').appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        function openModal(name) {
+            document.getElementById(name + 'Modal').classList.remove('hidden');
+            if(name === 'settings') checkLoginState();
+        }
+        function closeModal(name) { document.getElementById(name + 'Modal').classList.add('hidden'); }
+
+        function setFormType(type) {
+            formType = type;
+            document.getElementById('btnTypeApp').className = type === 'app' ? 'flex-1 py-2 rounded-md text-sm font-bold shadow-sm bg-white text-play-green transition' : 'flex-1 py-2 rounded-md text-sm font-medium text-gray-500 transition';
+            document.getElementById('btnTypeMovie').className = type === 'movie' ? 'flex-1 py-2 rounded-md text-sm font-bold shadow-sm bg-white text-play-green transition' : 'flex-1 py-2 rounded-md text-sm font-medium text-gray-500 transition';
+            document.getElementById('fieldUrl').className = type === 'movie' ? 'block' : 'hidden';
+            document.getElementById('lblDev').innerText = type === 'movie' ? 'النوع' : 'المطور';
+        }
+
+        function handleFilePreview(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = document.getElementById('previewIcon');
+                    img.src = e.target.result;
+                    img.classList.remove('hidden');
+                    document.getElementById('iconPlaceholder').classList.add('hidden');
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            if(document.getElementById('loginPhone').value === AUTH_CREDS.phone && document.getElementById('loginPin').value === AUTH_CREDS.pin) {
+                isAdmin = true;
+                showToast('تم تسجيل الدخول');
+                checkLoginState();
+                renderGrid();
+            } else {
+                showToast('بيانات خطأ', 'error');
+            }
+        }
+
+        function handleLogout() {
+            isAdmin = false;
+            showToast('تم الخروج');
+            checkLoginState();
+            renderGrid();
+        }
+
+        function checkLoginState() {
+            const vLogin = document.getElementById('viewLogin');
+            const vAdmin = document.getElementById('viewAdmin');
+            const btnAdd = document.getElementById('addAppBtn');
+            const avatar = document.getElementById('userAvatar');
+            if(isAdmin) {
+                vLogin.classList.add('hidden'); vAdmin.classList.remove('hidden');
+                btnAdd.classList.remove('hidden'); btnAdd.classList.add('flex');
+                avatar.classList.add('bg-play-green', 'text-white');
+            } else {
+                vLogin.classList.remove('hidden'); vAdmin.classList.add('hidden');
+                btnAdd.classList.add('hidden'); btnAdd.classList.remove('flex');
+                avatar.classList.remove('bg-play-green', 'text-white');
+            }
+        }
+
+        function filterCategory(cat, el) {
+            currentFilter = cat;
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active', 'bg-blue-50', 'text-play-green'));
+            if(el) el.classList.add('active');
+            renderGrid();
+            if(window.innerWidth < 768) toggleSidebar();
+        }
+
+        function toggleSidebar() {
+            const sb = document.getElementById('sidebar');
+            const ov = document.getElementById('sidebarOverlay');
+            if(sb.classList.contains('translate-x-full')) {
+                sb.classList.remove('translate-x-full'); ov.classList.remove('hidden');
+                setTimeout(() => ov.classList.remove('opacity-0'), 10);
+            } else {
+                sb.classList.add('translate-x-full'); ov.classList.add('opacity-0');
+                setTimeout(() => ov.classList.add('hidden'), 300);
+            }
+        }
+
+        function simulateInstall(name) { showToast(`جارِ التحميل: ${name}...`); }
+        function openPlayer(url) {
+            document.getElementById('playerOverlay').classList.remove('hidden');
+            const container = document.getElementById('videoContainer');
+            if(url.match(/\.(mp4|webm)$/i)) container.innerHTML = `<video controls autoplay class="w-full h-full"><source src="${url}"></video>`;
+            else container.innerHTML = `<iframe src="${url}" class="w-full h-full border-0" allowfullscreen></iframe>`;
+        }
+        function closePlayer() {
+            document.getElementById('playerOverlay').classList.add('hidden');
+            document.getElementById('videoContainer').innerHTML = '';
+        }
+
+        document.getElementById('searchInput').addEventListener('input', renderGrid);
+        document.getElementById('mobileSearchInput').addEventListener('input', renderGrid);
+
     </script>
 </body>
 </html>
